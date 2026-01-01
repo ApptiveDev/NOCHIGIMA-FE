@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
+import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
 
 class MypageScreen extends StatefulWidget {
@@ -150,10 +151,37 @@ class _MypageScreenState extends State<MypageScreen> {
             ),
             Container(height: 12, color: Color(0xFFF9FAFB)),
             // 하단(약관, 로그아웃)
-            Column(children: []),
+            Column(
+                children: [
+                  _buildMenu(
+                    "약관 및 정책",
+                      (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>TermsOfServiceScreen()));
+                      },
+                  ),
+                  _buildMenu("로그아웃", (){
+                  },)
+                ]),
           ],
         ),
       ),
     );
   }
+}
+
+Widget _buildMenu(String label, VoidCallback onTap){
+  return ListTile(
+    contentPadding: EdgeInsets.symmetric(horizontal: 20),
+    onTap: onTap,
+    title: Text(
+      label,
+      style: TextStyle(
+        fontSize: 16,
+        fontFamily: "Pretendard",
+        fontWeight: FontWeight.w500,
+        color: Color(0xFF323439)
+      ),
+    ),
+    trailing: Icon(Icons.chevron_right_rounded, color: Color(0xFFAFB8C1),size: 24,)
+  );
 }
