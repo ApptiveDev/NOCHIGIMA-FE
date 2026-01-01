@@ -42,54 +42,61 @@ class _MypageScreenState extends State<MypageScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
-          alignment: Alignment.center,
-          content: Padding(
-            padding: EdgeInsets.only(top: 28),
-            child: Text(
-              "로그아웃 하시겠습니까?",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                fontFamily: "Pretendard",
-                color: Color(0xFF323439),
-              ),
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "로그아웃 하시겠습니까?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "Pretendard",
+                    color: Color(0xFF323439),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("취소"),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Color(0xFF686D78),
+                        //backgroundColor: Color(0xFFF3F4F8),
+                        side: BorderSide(
+                          color: Color(0xFFE2E4EC),
+                          width: 0.8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)
+                        ),
+                        textStyle: TextStyle(
+                          fontSize: 14,
+                          fontFamily: "Pretendard",
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      child: Text("로그아웃", style: TextStyle(color: Color(0xFF686D78))),
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("취소"),
-              style: TextButton.styleFrom(
-                foregroundColor: Color(0xFF686D78),
-                //backgroundColor: Color(0xFFF3F4F8),
-                side: BorderSide(
-                  color: Color(0xFFE2E4EC),
-                  width: 0.8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)
-                ),
-                textStyle: TextStyle(
-                  fontSize: 14,
-                  fontFamily: "Pretendard",
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text("로그아웃", style: TextStyle(color: Color(0xFF686D78))),
-            ),
-          ],
         );
       },
     );
