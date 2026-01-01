@@ -38,6 +38,63 @@ class _MypageScreenState extends State<MypageScreen> {
     }
   }
 
+  void _LogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          alignment: Alignment.center,
+          content: Padding(
+            padding: EdgeInsets.only(top: 28),
+            child: Text(
+              "로그아웃 하시겠습니까?",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: "Pretendard",
+                color: Color(0xFF323439),
+              ),
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("취소"),
+              style: TextButton.styleFrom(
+                foregroundColor: Color(0xFF686D78),
+                //backgroundColor: Color(0xFFF3F4F8),
+                side: BorderSide(
+                  color: Color(0xFFE2E4EC),
+                  width: 0.8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)
+                ),
+                textStyle: TextStyle(
+                  fontSize: 14,
+                  fontFamily: "Pretendard",
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: Text("로그아웃", style: TextStyle(color: Color(0xFF686D78))),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,16 +209,20 @@ class _MypageScreenState extends State<MypageScreen> {
             Container(height: 12, color: Color(0xFFF9FAFB)),
             // 하단(약관, 로그아웃)
             Column(
-                children: [
-                  _buildMenu(
-                    "약관 및 정책",
-                      (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>TermsOfServiceScreen()));
-                      },
-                  ),
-                  _buildMenu("로그아웃", (){
-                  },)
-                ]),
+              children: [
+                _buildMenu("약관 및 정책", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TermsOfServiceScreen(),
+                    ),
+                  );
+                }),
+                _buildMenu("로그아웃", () {
+                  _LogoutDialog();
+                }),
+              ],
+            ),
           ],
         ),
       ),
@@ -169,7 +230,7 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 }
 
-Widget _buildMenu(String label, VoidCallback onTap){
+Widget _buildMenu(String label, VoidCallback onTap) {
   return ListTile(
     contentPadding: EdgeInsets.symmetric(horizontal: 20),
     onTap: onTap,
@@ -179,9 +240,13 @@ Widget _buildMenu(String label, VoidCallback onTap){
         fontSize: 16,
         fontFamily: "Pretendard",
         fontWeight: FontWeight.w500,
-        color: Color(0xFF323439)
+        color: Color(0xFF323439),
       ),
     ),
-    trailing: Icon(Icons.chevron_right_rounded, color: Color(0xFFAFB8C1),size: 24,)
+    trailing: Icon(
+      Icons.chevron_right_rounded,
+      color: Color(0xFFAFB8C1),
+      size: 24,
+    ),
   );
 }
