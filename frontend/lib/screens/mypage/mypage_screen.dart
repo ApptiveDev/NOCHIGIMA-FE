@@ -114,12 +114,15 @@ class _MypageScreenState extends State<MypageScreen> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 32),
                   // bookmark
                   IntrinsicHeight(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-
+                        _buildItem("4", "나의 브랜드"),
+                        _buildDivider(),
+                        _buildItem("13", "저장한 프로모션"),
                       ],
                     ),
                   ),
@@ -136,7 +139,7 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 }
 
-Widget _buildItem(String count, String label){
+Widget _buildItem(String count, String label) {
   return Column(
     children: [
       Text(
@@ -162,4 +165,10 @@ Widget _buildItem(String count, String label){
   );
 }
 
-
+Widget _buildDivider() {
+  return const VerticalDivider(
+    color: Color(0xFFE2E4EC),
+    thickness: 0.7,
+    width: 1,
+  );
+}
