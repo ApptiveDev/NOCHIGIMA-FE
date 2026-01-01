@@ -48,7 +48,7 @@ class _MypageScreenState extends State<MypageScreen> {
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 28, 20, 22),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -66,31 +66,48 @@ class _MypageScreenState extends State<MypageScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text("취소"),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Color(0xFF686D78),
-                        //backgroundColor: Color(0xFFF3F4F8),
-                        side: BorderSide(
-                          color: Color(0xFFE2E4EC),
-                          width: 0.8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)
-                        ),
-                        textStyle: TextStyle(
-                          fontSize: 14,
-                          fontFamily: "Pretendard",
-                          fontWeight: FontWeight.w800,
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("취소"),
+                        style: TextButton.styleFrom(
+                          minimumSize: Size(0, 50),
+                          foregroundColor: Color(0xFF686D78),
+                          //backgroundColor: Color(0xFFF3F4F8),
+                          side: BorderSide(
+                            color: Color(0xFFE2E4EC),
+                            width: 0.8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)
+                          ),
+                          textStyle: TextStyle(
+                            fontSize: 14,
+                            fontFamily: "Pretendard",
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text("로그아웃", style: TextStyle(color: Color(0xFF686D78))),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          minimumSize: Size(0, 50),
+                          backgroundColor: Color(0xFFFF333F),
+                          side: BorderSide(
+                            color: Color(0xFFE2E4EC),
+                            width: 0.8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)
+                          ),
+                        ),
+                        child: Text("로그아웃", style: TextStyle(color: Colors.white)),
+                      ),
                     ),
                   ],
                 )
