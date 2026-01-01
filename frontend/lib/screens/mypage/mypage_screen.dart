@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend/screens/mypage/edit_profile_screen.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
@@ -125,7 +126,7 @@ class _MypageScreenState extends State<MypageScreen> {
                               ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));},
                         child: Row(
                           children: [
                             Text(
