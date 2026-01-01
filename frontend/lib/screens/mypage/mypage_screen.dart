@@ -9,6 +9,32 @@ class MypageScreen extends StatefulWidget {
 }
 
 class _MypageScreenState extends State<MypageScreen> {
+  String _nickname = "";
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMyProfile();
+  }
+
+  Future<void> _fetchMyProfile() async {
+    try {
+      // backend 연결 필요
+      await Future.delayed(const Duration(seconds: 1));
+      final nickname = "모아부기";
+
+      if (mounted) {
+        setState(() {
+          _nickname = nickname;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("에러 발생 : $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,25 +55,30 @@ class _MypageScreenState extends State<MypageScreen> {
                       ),
                       SizedBox(width: 16),
                       Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF323439),
-                            ),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: "모아부기",
-                                style: TextStyle(
-                                  fontFamily: "Pretendard",
-                                  fontWeight: FontWeight.w700,
+                        child: _isLoading
+                            ? const Align(
+                                alignment: Alignment.centerLeft,
+                                child: CircularProgressIndicator(),
+                              )
+                            : RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF323439),
+                                  ),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: _nickname,
+                                      style: TextStyle(
+                                        fontFamily: "Pretendard",
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    TextSpan(text: " 님,\n안녕하세요!"),
+                                  ],
                                 ),
                               ),
-                              TextSpan(text: " 님,\n안녕하세요!"),
-                            ],
-                          ),
-                        ),
                       ),
                       ElevatedButton(
                         onPressed: () {},
@@ -60,7 +91,7 @@ class _MypageScreenState extends State<MypageScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(width: 4,),
+                            SizedBox(width: 4),
                             Icon(
                               Icons.edit,
                               size: 10,
