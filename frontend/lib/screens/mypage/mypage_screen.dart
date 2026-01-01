@@ -216,3 +216,18 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 }
 
+class MypageNavigator extends StatelessWidget {
+  const MypageNavigator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      // 마이페이지 탭 내부의 첫 화면 지정
+      onGenerateRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
+          builder: (context) => const MypageScreen(), // 기존의 마이페이지
+        );
+      },
+    );
+  }
+}
