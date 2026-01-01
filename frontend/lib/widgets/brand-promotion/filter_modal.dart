@@ -191,7 +191,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   discountRange: _discountRange,
                   period: _selectedPeriod,
                 );
-                Navigator.pop(context, filterData);
+                if(context.mounted) {Navigator.pop(context, filterData);}
               },
               child: _isLoading
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
