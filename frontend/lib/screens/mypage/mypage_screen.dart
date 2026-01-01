@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -118,11 +119,28 @@ class _MypageScreenState extends State<MypageScreen> {
                   // bookmark
                   IntrinsicHeight(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildItem("4", "나의 브랜드"),
+                        Expanded(
+                          child: _buildItem("4", "나의 브랜드", () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyBookmarksScreen(),
+                              ),
+                            );
+                          }),
+                        ),
                         _buildDivider(),
-                        _buildItem("13", "저장한 프로모션"),
+                        Expanded(
+                          child: _buildItem("13", "저장한 프로모션", () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyBookmarksScreen(),
+                              ),
+                            );
+                          }),
+                        ),
                       ],
                     ),
                   ),
@@ -139,29 +157,36 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 }
 
-Widget _buildItem(String count, String label) {
-  return Column(
-    children: [
-      Text(
-        count,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: Color(0xFF323439),
-          fontFamily: "Pretendard",
-        ),
+Widget _buildItem(String count, String label, VoidCallback onTap) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      width: double.infinity,
+      child: Column(
+        children: [
+          Text(
+            count,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF323439),
+              fontFamily: "Pretendard",
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF858C9A),
+              fontFamily: "Pretendard",
+            ),
+          ),
+        ],
       ),
-      SizedBox(height: 8),
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: Color(0xFF858C9A),
-          fontFamily: "Pretendard",
-        ),
-      ),
-    ],
+    ),
   );
 }
 
