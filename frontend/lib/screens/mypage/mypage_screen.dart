@@ -115,7 +115,14 @@ class _MypageScreenState extends State<MypageScreen> {
                     ],
                   ),
                   // bookmark
-                  Row(),
+                  IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -128,3 +135,31 @@ class _MypageScreenState extends State<MypageScreen> {
     );
   }
 }
+
+Widget _buildItem(String count, String label){
+  return Column(
+    children: [
+      Text(
+        count,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF323439),
+          fontFamily: "Pretendard",
+        ),
+      ),
+      SizedBox(height: 8),
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF858C9A),
+          fontFamily: "Pretendard",
+        ),
+      ),
+    ],
+  );
+}
+
+
