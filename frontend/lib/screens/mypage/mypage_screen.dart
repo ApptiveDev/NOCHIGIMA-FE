@@ -234,7 +234,7 @@ class _MypageScreenState extends State<MypageScreen> {
             // 하단(약관, 로그아웃)
             Column(
               children: [
-                _buildMenu("약관 및 정책", () {
+                buildMenu("약관 및 정책", () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -242,7 +242,7 @@ class _MypageScreenState extends State<MypageScreen> {
                     ),
                   );
                 }),
-                _buildMenu("로그아웃", () {
+                buildMenu("로그아웃", () {
                   _LogoutDialog();
                 }),
               ],
@@ -255,23 +255,3 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 }
 
-Widget _buildMenu(String label, VoidCallback onTap) {
-  return ListTile(
-    contentPadding: EdgeInsets.symmetric(horizontal: 20),
-    onTap: onTap,
-    title: Text(
-      label,
-      style: TextStyle(
-        fontSize: 16,
-        fontFamily: "Pretendard",
-        fontWeight: FontWeight.w500,
-        color: Color(0xFF323439),
-      ),
-    ),
-    trailing: Icon(
-      Icons.chevron_right_rounded,
-      color: Color(0xFFAFB8C1),
-      size: 24,
-    ),
-  );
-}
