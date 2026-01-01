@@ -12,23 +12,80 @@ class MypageScreen extends StatelessWidget {
           children: [
             // 상단(프로필, 북마크)
             Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 children: [
-                  Row(), // profile
+                  // profile
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        "assets/images/myProfile.svg",
+                        width: 70,
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF323439),
+                            ),
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: "모아부기",
+                                style: TextStyle(
+                                  fontFamily: "Pretendard",
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              TextSpan(text: " 님,\n안녕하세요!"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: Row(
+                          children: [
+                            Text(
+                              "프로필 편집",
+                              style: TextStyle(
+                                color: Color(0xFF858C9A),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(width: 4,),
+                            Icon(
+                              Icons.edit,
+                              size: 10,
+                              color: Color(0xFF858C9A),
+                            ),
+                          ],
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          backgroundColor: Color(0xFFF9FAFB),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // bookmark
                   Row(),
                 ],
               ),
             ),
-            Container(
-              height: 12,
-              color: Color(0xFFF9FAFB),
-            ),
+            Container(height: 12, color: Color(0xFFF9FAFB)),
             // 하단(약관, 로그아웃)
-            Column(
-              children: [
-
-              ],
-            )
+            Column(children: []),
           ],
         ),
       ),
