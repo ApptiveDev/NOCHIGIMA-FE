@@ -34,10 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: SizedBox(
-            width: double.infinity,
+          child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -50,78 +47,90 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 SizedBox(height: 30),
                 // info
-                Container(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "기본정보",
+                          style: TextStyle(
+                            fontFamily: "Pretendard",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF949BA8),
+                          ),
+                        ),
+                        _buildEditMenu(
+                          label: "닉네임",
+                          trailing: Text(
+                            "모아부기",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontFamily: "Pretendard",
+                              fontSize: 16,
+                              color: Color(0xFF323439),
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNicknameScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                Container(height: 12, color: Color(0xFFF9FAFB)),
+                // alarm
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "알림",
+                          style: TextStyle(
+                            fontFamily: "Pretendard",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF949BA8),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        ListTile(
+                        ),
+                      ],
+                    ),
+                  ),
+                Container(height: 12, color: Color(0xFFF9FAFB)),
+
+                // social account
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "기본정보",
-                        style: TextStyle(
-                          fontFamily: "Pretendard",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF949BA8),
-                        ),
-                      ),
                       _buildEditMenu(
-                        label: "닉네임",
-                        trailing: Text(
-                          "모아부기",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontFamily: "Pretendard",
-                            fontSize: 16,
-                            color: Color(0xFF323439),
-                          ),
+                        label: "연동된 소셜 계정",
+                        trailing: SvgPicture.asset(
+                          "assets/images/kakao_icon_mini.svg",
+                          width: 36,
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChangeNicknameScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () {},
                       ),
                     ],
                   ),
-                ),
-                Container(height: 12, color: Color(0xFFF9FAFB)),
-                // alarm
-                Container(
-                  padding: EdgeInsets.only(top: 14),
-                  child: Column(
-                    children: [
-                      Text(
-                        "알림",
-                        style: TextStyle(
-                          fontFamily: "Pretendard",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF949BA8),
-                        ),
-                      ),
-
-                    ],
-                  ),
-
-                ),
-                Container(height: 12, color: Color(0xFFF9FAFB)),
-                // social account
-                _buildEditMenu(
-                  label: "연동된 소셜 계정",
-                  trailing: SvgPicture.asset(
-                    "assets/images/kakao_icon_mini.svg",
-                    width: 36,
-                  ),
-                  onTap: () {},
                 ),
                 // 탈퇴하기
+
               ],
             ),
           ),
         ),
-      ),
     );
   }
 }
