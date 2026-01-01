@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
+import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
 
 class MypageScreen extends StatefulWidget {
@@ -35,6 +36,47 @@ class _MypageScreenState extends State<MypageScreen> {
     } catch (e) {
       print("에러 발생 : $e");
     }
+  }
+
+  void _LogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(20, 28, 20, 22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "로그아웃 하시겠습니까?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "Pretendard",
+                    color: Color(0xFF323439),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    buildDialogButton(text: "취소", textColor: Color(0xFF686D78), onTap: (){Navigator.pop(context);}, borderColor: Color(0xFFE2E4EC)),
+                    SizedBox(width: 10),
+                    buildDialogButton(text: "로그아웃", textColor: Colors.white, onTap: (){}, backgroundColor: Color(0xFFFF333F))
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -150,6 +192,21 @@ class _MypageScreenState extends State<MypageScreen> {
             ),
             Container(height: 12, color: Color(0xFFF9FAFB)),
             // 하단(약관, 로그아웃)
+            Column(
+              children: [
+                buildMenu("약관 및 정책", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TermsOfServiceScreen(),
+                    ),
+                  );
+                }),
+                buildMenu("로그아웃", () {
+                  _LogoutDialog();
+                }),
+              ],
+            ),
             Column(children: []),
           ],
         ),
@@ -157,3 +214,4 @@ class _MypageScreenState extends State<MypageScreen> {
     );
   }
 }
+
