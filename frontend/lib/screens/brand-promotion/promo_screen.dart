@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/brand-promotion/detail_promo_screen.dart';
-import 'package:frontend/screens/brand-promotion/search_promo_screen.dart';
 import 'package:frontend/widgets/brand-promotion/brand_promotion_widgets.dart';
 import 'package:frontend/models/menu_category.dart';
 import 'package:frontend/models/promotion_data.dart';
+import 'package:frontend/widgets/brand-promotion/filter_modal.dart';
+import 'package:frontend/widgets/brand-promotion/sort_bottom_modal.dart';
 
 class PromoScreen extends StatefulWidget {
   final MenuCategory initialCategory;
 
   const PromoScreen({super.key, this.initialCategory = MenuCategory.pizza});
-
   @override
   State<PromoScreen> createState() => _PromoScreenState();
 }
@@ -18,6 +18,8 @@ class PromoScreen extends StatefulWidget {
 //promo-screen build
 class _PromoScreenState extends State<PromoScreen> {
   late MenuCategory _selectedCategory;
+  PromotionFilter? _currentFilter;
+  String _currentSort = "추천순";
 
   // 임시데이터
   final Map<MenuCategory, List<PromotionData>> _dummyData = {
@@ -52,6 +54,44 @@ class _PromoScreenState extends State<PromoScreen> {
     ],
   };
 
+  Widget _buildSelectedFiltering(Map<String, String> filter) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFF25454)),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+              filter['label'] ?? "",
+              style: const TextStyle(color: Color(0xFFF25454), fontWeight: FontWeight.w500)
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                if(_currentFilter != null) {
+                  if (filter['type'] == 'discount') {
+                    _currentFilter!.discountRange = null;
+                  } else {
+                    _currentFilter!.period = null;
+                  }
+                  if (_currentFilter!.discountRange == null && _currentFilter!.period == null) {
+                    _currentFilter = null;
+                  }
+                }
+              });
+            },
+            child: const Icon(Icons.close, size: 16, color: Color(0xFFF25454)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -75,7 +115,7 @@ class _PromoScreenState extends State<PromoScreen> {
           border: Border(
             bottom: isSelected
                 ? BorderSide(color: Colors.grey[800]!, width: 2)
-                : BorderSide(color: Color(0xFFF3F4F8)!, width: 1),
+                : BorderSide(color: Color(0xFFF3F4F8), width: 1),
           ),
         ),
         child: Column(
@@ -108,7 +148,7 @@ class _PromoScreenState extends State<PromoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
+              SizedBox(
                 height: 90,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
@@ -118,7 +158,7 @@ class _PromoScreenState extends State<PromoScreen> {
                 ),
               ),
               SizedBox(height: 25),
-              Container(
+              SizedBox(
                 //filter
                 height: 36,
                 child: ListView(
@@ -127,12 +167,25 @@ class _PromoScreenState extends State<PromoScreen> {
                     //FILTER
                     FilterButton(
                       // 추천순 button
-                      onPressed: () {},
+                      onPressed: () async {
+                        final String? result = await showModalBottomSheet<String>(
+                          context: context,
+                          backgroundColor: Colors.transparent, // 모달의 둥근 모서리를 살리기 위해 투명 설정
+                          isScrollControlled: true,
+                          builder: (context) => SortBottomModal(selectedSort: _currentSort),
+                        );
+
+                        if (result != null && mounted) {
+                          setState(() {
+                            _currentSort = result;
+                          });
+                        }
+                      },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "추천순",
+                            _currentSort,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -152,7 +205,24 @@ class _PromoScreenState extends State<PromoScreen> {
                     SizedBox(width: 8),
                     FilterButton(
                       // 필터 button
-                      onPressed: () {},
+                      onPressed: () async {
+                        final PromotionFilter? result = await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return FilterBottomSheet();
+                          },
+                        );
+
+                        if(!mounted) return;
+
+                        if (result != null){
+                          setState(() {
+                            _currentFilter = result;
+                          });
+                        }
+                      },
                       padding: EdgeInsets.all(8.0),
                       borderColor: Color(0xFFE2E4EC),
                       child: Icon(Icons.tune_rounded, color: Color(0xFF323439)),
@@ -165,6 +235,24 @@ class _PromoScreenState extends State<PromoScreen> {
                       indent: 4,
                       endIndent: 4,
                     ),
+                    const SizedBox(width: 8,),
+                    if(_currentFilter != null)
+                      if(_currentFilter?.discountRange != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right:8),
+                          child: _buildSelectedFiltering({
+                            'label': "${_currentFilter!.discountRange!.start.round()}~${_currentFilter!.discountRange!.end.round()}% 할인",
+                            'type': 'discount'
+                          }),
+                        ),
+                    if (_currentFilter?.period != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: _buildSelectedFiltering({
+                          'label': _currentFilter!.period!,
+                          'type': 'period'
+                        }),
+                      ),
                   ],
                 ),
               ),

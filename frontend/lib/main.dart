@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/main_screen.dart';
-import 'package:frontend/screens/home/home_screen.dart';
 import 'package:frontend/screens/login/login.dart';
 
 void main() {
