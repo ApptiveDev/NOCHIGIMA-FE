@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/main_screen.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend/screens/home/home_screen.dart';
 
 class Namecomplete extends StatelessWidget {
   final String nickName;
@@ -16,9 +15,9 @@ class Namecomplete extends StatelessWidget {
         child: Column(
           children: [
             Spacer(flex: 2),
-            Container(
-              child: SvgPicture.asset("assets/images/celebrate.svg"),
+            SizedBox(
               height: 100,
+              child: SvgPicture.asset("assets/images/celebrate.svg"),
             ),
             SizedBox(height: 37),
             Text(
@@ -53,7 +52,7 @@ class Namecomplete extends StatelessWidget {
               ),
             ),
             Spacer(flex: 2),
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
@@ -64,6 +63,14 @@ class Namecomplete extends StatelessWidget {
                       (Route<dynamic> route)  => false,
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFF333F),
+                  disabledBackgroundColor: Color(0xFFFF333F),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
                 child: Text(
                   "놓치지마 시작하기",
                   style: TextStyle(
@@ -71,14 +78,6 @@ class Namecomplete extends StatelessWidget {
                     fontFamily: "Pretendard",
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFFF333F),
-                  disabledBackgroundColor: Color(0xFFFF333F),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),

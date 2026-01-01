@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/brand-promotion/detail_promo_screen.dart';
-import 'package:frontend/screens/brand-promotion/search_promo_screen.dart';
 import 'package:frontend/widgets/brand-promotion/brand_promotion_widgets.dart';
 import 'package:frontend/models/menu_category.dart';
 import 'package:frontend/models/promotion_data.dart';
+import 'package:frontend/widgets/brand-promotion/filter_modal.dart';
 
 class PromoScreen extends StatefulWidget {
   final MenuCategory initialCategory;
@@ -75,7 +75,7 @@ class _PromoScreenState extends State<PromoScreen> {
           border: Border(
             bottom: isSelected
                 ? BorderSide(color: Colors.grey[800]!, width: 2)
-                : BorderSide(color: Color(0xFFF3F4F8)!, width: 1),
+                : BorderSide(color: Color(0xFFF3F4F8), width: 1),
           ),
         ),
         child: Column(
@@ -108,7 +108,7 @@ class _PromoScreenState extends State<PromoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
+              SizedBox(
                 height: 90,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
@@ -118,7 +118,7 @@ class _PromoScreenState extends State<PromoScreen> {
                 ),
               ),
               SizedBox(height: 25),
-              Container(
+              SizedBox(
                 //filter
                 height: 36,
                 child: ListView(
@@ -152,7 +152,15 @@ class _PromoScreenState extends State<PromoScreen> {
                     SizedBox(width: 8),
                     FilterButton(
                       // 필터 button
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return FilterBottomSheet();
+                          },
+                        );
+                      },
                       padding: EdgeInsets.all(8.0),
                       borderColor: Color(0xFFE2E4EC),
                       child: Icon(Icons.tune_rounded, color: Color(0xFF323439)),

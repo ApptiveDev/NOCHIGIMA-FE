@@ -49,6 +49,8 @@ final List<BookmarksBrand> bookmarkBrands = [
 ];
 
 class MyBookmarks extends StatelessWidget {
+  const MyBookmarks({super.key});
+
 
   @override
   Widget build(BuildContext context) {

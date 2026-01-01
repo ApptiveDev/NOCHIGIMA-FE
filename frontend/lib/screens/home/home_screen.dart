@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget{
 
 class _HomeScreen extends State<HomeScreen>{
 
-  int _currentBannerPage = 0;
+  final int _currentBannerPage = 0;
   final List<Map<String, String>> bannerItems = [
     {
       "image": "assets/images/slider_burger.png",
