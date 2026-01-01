@@ -223,6 +223,7 @@ class _MypageScreenState extends State<MypageScreen> {
                 }),
               ],
             ),
+            Column(children: []),
           ],
         ),
       ),
