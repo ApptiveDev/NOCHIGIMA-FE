@@ -66,51 +66,11 @@ class _MypageScreenState extends State<MypageScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("취소"),
-                        style: TextButton.styleFrom(
-                          minimumSize: Size(0, 50),
-                          foregroundColor: Color(0xFF686D78),
-                          //backgroundColor: Color(0xFFF3F4F8),
-                          side: BorderSide(
-                            color: Color(0xFFE2E4EC),
-                            width: 0.8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)
-                          ),
-                          textStyle: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "Pretendard",
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
+                    buildDialogButton(text: "취소", textColor: Color(0xFF686D78), onTap: (){Navigator.pop(context);}, borderColor: Color(0xFFE2E4EC)),
                     SizedBox(width: 10),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          minimumSize: Size(0, 50),
-                          backgroundColor: Color(0xFFFF333F),
-                          side: BorderSide(
-                            color: Color(0xFFE2E4EC),
-                            width: 0.8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)
-                          ),
-                        ),
-                        child: Text("로그아웃", style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
+                    buildDialogButton(text: "로그아웃", textColor: Colors.white, onTap: (){}, backgroundColor: Color(0xFFFF333F))
                   ],
-                )
+                ),
               ],
             ),
           ),
