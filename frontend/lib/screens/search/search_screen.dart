@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/brand-promotion/popular_search_section.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -28,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
         title: SearchBar(
           controller: _resetController,
           hintText: "주소 검색",
-          hintStyle: MaterialStateProperty.all(
+          hintStyle: WidgetStateProperty.all(
             TextStyle(
               color: Colors.grey[400],
               fontFamily: "Pretendard",
@@ -36,13 +35,13 @@ class _SearchScreenState extends State<SearchScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[050]!),
-          elevation: MaterialStateProperty.all<double>(0.0),
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.grey[050]!),
+          elevation: WidgetStateProperty.all<double>(0.0),
           trailing: [
             IconButton(onPressed: () {_resetController.clear();}, icon: Icon(Icons.cancel)),
             IconButton(onPressed: () {}, icon: Icon(Icons.search)),
           ],
-          shape: MaterialStateProperty.all(
+          shape: WidgetStateProperty.all(
             ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           constraints: BoxConstraints(maxHeight: 60),

@@ -127,6 +127,18 @@ class _MypageScreenState extends State<MypageScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));},
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          backgroundColor: Color(0xFFF9FAFB),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         child: Row(
                           children: [
                             Text(
@@ -143,18 +155,6 @@ class _MypageScreenState extends State<MypageScreen> {
                               color: Color(0xFF858C9A),
                             ),
                           ],
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size.zero,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          backgroundColor: Color(0xFFF9FAFB),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
                         ),
                       ),
                     ],

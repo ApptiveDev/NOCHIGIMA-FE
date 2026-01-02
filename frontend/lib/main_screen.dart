@@ -5,7 +5,6 @@ import 'package:frontend/models/menu_category.dart';
 import 'package:frontend/screens/brand-promotion/search_promo_screen.dart';
 import 'package:frontend/screens/home/home_screen.dart';
 import 'package:frontend/screens/mypage/mypage_screen.dart';
-import 'package:frontend/screens/search/search_screen.dart';
 import 'package:frontend/screens/brand-promotion/promo_screen.dart';
 import 'package:frontend/screens/social/social_screen.dart';
 import 'package:frontend/widgets/nav_widget.dart';
@@ -24,7 +23,7 @@ class _MainScreenState extends State<MainScreen>{
 
   void _onTapped(int index){
     setState(() {
-      this._selectedIndex = index;
+      _selectedIndex = index;
     });
   }
 
@@ -38,7 +37,7 @@ class _MainScreenState extends State<MainScreen>{
   @override
   Widget build(BuildContext context){
 
-    final List<Widget> _pages = <Widget>[
+    final List<Widget> pages = <Widget>[
       HomeScreen(onCategoryTap: _onCategorySelected,),
       const SearchPromotion(),
       PromoScreen(
@@ -66,7 +65,7 @@ class _MainScreenState extends State<MainScreen>{
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: _pages,
+        children: pages,
       ),
       bottomNavigationBar: BottomAppBar(
         height: 89,

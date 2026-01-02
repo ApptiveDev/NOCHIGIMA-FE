@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/models/menu_category.dart';
-import 'package:frontend/screens/brand-promotion/promo_screen.dart';
 
 class CategoryGrid extends StatelessWidget {
   final Function(MenuCategory) onCategoryTap;

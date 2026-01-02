@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/main_screen.dart';
 import './setting_name.dart';
@@ -56,7 +55,7 @@ class Login extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 100),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
@@ -100,7 +99,7 @@ class Login extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 8),
-              Container(
+              SizedBox(
                 // google로 시작하기 버튼
                 width: double.infinity,
                 height: 60,

@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:frontend/screens/login/setting_name_complete.dart';
 
 class Settingname extends StatefulWidget {
@@ -109,7 +107,7 @@ class _SettingnameState extends State<Settingname> {
               ),
             ),
             Spacer(),
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
@@ -118,6 +116,14 @@ class _SettingnameState extends State<Settingname> {
                         submitButton(_nicknameController.text);
                       }
                     : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFF333F),
+                  disabledBackgroundColor: Color(0xFFFFD9DC),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
                 child: Text(
                   "다음",
                   style: TextStyle(
@@ -125,14 +131,6 @@ class _SettingnameState extends State<Settingname> {
                     fontFamily: "Pretendard",
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFFF333F),
-                  disabledBackgroundColor: Color(0xFFFFD9DC),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),

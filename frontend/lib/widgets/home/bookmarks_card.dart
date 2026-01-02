@@ -31,7 +31,7 @@ class BookmarksCard extends StatelessWidget{
                 fit: StackFit.expand,
                 children: [
                   Center(
-                    child: Container(
+                    child: SizedBox(
                       width: logoBoxSize,
                       height: logoBoxSize,
 
