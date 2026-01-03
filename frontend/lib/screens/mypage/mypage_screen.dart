@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend/screens/mypage/edit_profile_screen.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
@@ -125,7 +126,7 @@ class _MypageScreenState extends State<MypageScreen> {
                               ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));},
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: EdgeInsets.symmetric(
@@ -215,3 +216,18 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 }
 
+class MypageNavigator extends StatelessWidget {
+  const MypageNavigator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      // 마이페이지 탭 내부의 첫 화면 지정
+      onGenerateRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
+          builder: (context) => const MypageScreen(), // 기존의 마이페이지
+        );
+      },
+    );
+  }
+}

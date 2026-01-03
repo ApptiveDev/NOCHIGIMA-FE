@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen>{
         initialCategory: _targetCatetory,
       ),
       const SocialScreen(),
-      const MypageScreen(),
+      const MypageNavigator(),
     ];
 
     BottomNavigationBarItem svgItem(String asset, String label, int idx){
