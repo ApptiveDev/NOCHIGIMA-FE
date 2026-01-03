@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/login/setting_name_complete.dart';
 
 class Settingname extends StatefulWidget {
-  const Settingname({super.key});
+  final bool isEditMode;
+  final String? initialNickname;
+
+  const Settingname({
+    super.key,
+    this.isEditMode = false,
+    this.initialNickname
+  });
 
   @override
   State<Settingname> createState() => _SettingnameState();
@@ -44,7 +51,9 @@ class _SettingnameState extends State<Settingname> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.white, elevation: 0,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.navigate_before_rounded,
@@ -77,7 +86,8 @@ class _SettingnameState extends State<Settingname> {
                 decoration: InputDecoration(
                   hintText: "닉네임 입력",
                   hintStyle: TextStyle(
-                    fontFamily: "Pretendard", color: Colors.grey[400],
+                    fontFamily: "Pretendard",
+                    color: Colors.grey[400],
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
@@ -99,8 +109,8 @@ class _SettingnameState extends State<Settingname> {
             SizedBox(height: 10),
             Text(
               "2~8자까지 입력할 수 있어요.",
-              style: TextStyle (
-                color:  _isButtonEnabled ? Colors.grey[400] : Color(0xffFF333F),
+              style: TextStyle(
+                color: _isButtonEnabled ? Colors.grey[400] : Color(0xffFF333F),
                 fontSize: 14,
                 fontFamily: "Pretendard",
                 fontWeight: FontWeight.normal,
