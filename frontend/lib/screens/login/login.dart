@@ -2,15 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/main_screen.dart';
 import './setting_name.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
 
   void _handleLogin(BuildContext context, String provider) async {
     String? socialId;
+    print("🔥 [내 진짜 키 해시]: ${await KakaoSdk.origin}");
     try {
       if (provider == 'kakao') {
         print("카카오 로그인 실행");
+        OAuthToken token;
+        if (await isKakaoTalkInstalled()){
+          try{
+            token = await UserApi.instance.loginWithKakaoTalk();
+            print("kakao login 성공");
+          } catch (e) {
+            print("kakao login 실패 $e");
+            token = await UserApi.instance.loginWithKakaoAccount();
+          }
+        } else {
+          token = await UserApi.instance.loginWithKakaoAccount();
+          print("kakao login with account 성공");
+        }
+        print("============================");
+        print("내 카카오 access token : ${token.accessToken}");
+        print("============================");
       } else if (provider == 'google') {
         print("구글 로그인 실행");
       }
