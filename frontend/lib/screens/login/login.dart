@@ -2,32 +2,95 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/main_screen.dart';
 import './setting_name.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Login extends StatelessWidget {
+  static final storage = FlutterSecureStorage();
   const Login({super.key});
-
+  
+  Future<Map<String, dynamic>?> sendTokenToServer(String kakaoAccessToken) async {
+    final url = Uri.parse('https://api.nochigima.shop/v1/auth/kakao/callback');
+    print("🚀 [서버통신 시작] 주소: $url"); // 1. 함수 진입 확인
+    print("🚀 [보내는 토큰]: $kakaoAccessToken");
+    try {
+      final response = await http.post(
+          url,
+        headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'accessToken':kakaoAccessToken
+          }),
+      );
+      print("📩 [서버 응답 코드]: ${response.statusCode}");
+      if (response.statusCode == 200){
+        print("서버 로그인 성공!");
+        return jsonDecode(response.body);
+      } else {
+        print("서버 에러 ${response.statusCode} / ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("네트워크 에러 $e");
+      return null;
+    }
+  }
+  
   void _handleLogin(BuildContext context, String provider) async {
     String? socialId;
+    print("🔥 [내 진짜 키 해시]: ${await KakaoSdk.origin}");
     try {
       if (provider == 'kakao') {
         print("카카오 로그인 실행");
+        OAuthToken token;
+        if (await isKakaoTalkInstalled()){
+          try{
+            token = await UserApi.instance.loginWithKakaoTalk();
+            print("kakao login 성공");
+          } catch (e) {
+            print("kakao login 실패 $e");
+            token = await UserApi.instance.loginWithKakaoAccount();
+          }
+        } else {
+          token = await UserApi.instance.loginWithKakaoAccount();
+          print("kakao login with account 성공");
+        }
+        print("============================");
+        print("내 카카오 access token : ${token.accessToken}");
+        print("============================");
+
+        final serverResponse = await sendTokenToServer(token.accessToken);
+        if (serverResponse != null) {
+          String accessToken = serverResponse['accessToken'];
+          String refreshToken = serverResponse['refreshToken'];
+          bool isNewMember = serverResponse['isNewMember'];
+
+          print("✅ 서버 로그인 성공");
+          print("- New Member? : $isNewMember");
+          print("- Access Token : $accessToken");
+
+          await storage.write(key: 'accessToken', value: accessToken);
+          await storage.write(key: 'refreshToken', value: refreshToken);
+          if (!context.mounted) return;
+          if (isNewMember) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Settingname()),
+            );
+          } else {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => MainScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          }
+        }
       } else if (provider == 'google') {
         print("구글 로그인 실행");
       }
 
-      bool isNewUser = true; //연동할 때 여기 수정하기!!
-      if (isNewUser) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Settingname()),
-        );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
-          (Route<dynamic> route) => false,
-        );
-      }
+
     } catch (error) {
       print("$provider 로그인Error : $error");
     }
