@@ -36,6 +36,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
           ),
           // 탭바 구현
           bottom: const TabBar(
+            indicatorSize: TabBarIndicatorSize.tab,
             indicatorColor: Color(0xFF323439),
             indicatorWeight: 2.0,
             labelColor: Color(0xFF323439),
