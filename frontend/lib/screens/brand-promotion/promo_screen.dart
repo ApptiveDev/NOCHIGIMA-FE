@@ -6,6 +6,8 @@ import 'package:frontend/models/menu_category.dart';
 import 'package:frontend/models/promotion_data.dart';
 import 'package:frontend/widgets/brand-promotion/filter_modal.dart';
 import 'package:frontend/widgets/brand-promotion/sort_bottom_modal.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PromoScreen extends StatefulWidget {
   final MenuCategory initialCategory;
@@ -21,38 +23,61 @@ class _PromoScreenState extends State<PromoScreen> {
   PromotionFilter? _currentFilter;
   String _currentSort = "추천순";
 
-  // 임시데이터
-  final Map<MenuCategory, List<PromotionData>> _dummyData = {
-    MenuCategory.pizza: [
-      PromotionData(
-        imageURL: "assets/images/test_Mask group.jpg",
-        title: "피자헛 10% 할인",
-        deadline: "2025.09.12 ~",
-      ),
-      PromotionData(
-        imageURL: "assets/images/test_Mask group.jpg",
-        title: "도미노 1+1",
-        deadline: "2025.10.11 ~ 2025.10.18",
-      ),
-    ],
-    MenuCategory.burger: [
-      PromotionData(
-        imageURL: "assets/images/logo_burgerking.png",
-        title: "버거킹 와퍼 행사",
-        deadline: "2025.08.01 ~ 2025.09.01",
-      ),
-      PromotionData(
-        imageURL: "assets/images/test_Mask group.jpg",
-        title: "맥도날드 맥런치",
-        deadline: "상시",
-      ),
-      PromotionData(
-        imageURL: "assets/images/test_Mask group.jpg",
-        title: "맘스터치 신메뉴",
-        deadline: "2025.11.31 ~ 2025.12.31",
-      ),
-    ],
-  };
+  List<PromotionData> _currentPromotions = [];
+  bool _isLoading = false;
+
+  Future<void> _fetchCategoryPromotions(int categoryId) async{
+    setState(() {
+      _isLoading = true;
+    });
+    List<PromotionData> allProducts = [];
+
+    try{
+      final brandRes = await http.get(
+        Uri.parse('http://api.nochigima.shop/v1/categories/$categoryId/brands'),
+        headers: {'accept': '*/*'},
+      );
+      print("브랜드 응답 코드: ${brandRes.statusCode}");
+
+      if(brandRes.statusCode == 200){
+        print("브랜드 데이터: ${brandRes.body}");
+        List<dynamic> brands = json.decode(brandRes.body);
+        for(var brand in brands){
+          if((brand['discountedProductCount'] ?? 0) > 0){
+            final int? brandId = brand['brandId'];
+            final int count = brand['discountedProductCount'] ?? 0;
+
+            if (brandId != null && count > 0) {
+              print("${brand['name']} 브랜드의 할인 상품 $count개를 가져옵니다...");
+
+              final productRes = await http.get(
+                Uri.parse(
+                    'https://api.nochigima.shop/v1/brands/$brandId/products?onlyDiscounted=true'),
+                headers: {'accept': '*/*'},
+              );
+
+              if (productRes.statusCode == 200) {
+                List<dynamic> products = json.decode(productRes.body);
+                print("${brand['name']}의 상품 개수: ${products.length}");
+                allProducts.addAll(
+                    products.map((p) => PromotionData.fromJson(p)).toList());
+              }
+            }
+          }
+        }
+
+        setState(() {
+          _currentPromotions = allProducts;
+          _isLoading = false;
+        });
+      }
+    }catch(e){
+      print("데이터 연동 오류: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Widget _buildSelectedFiltering(Map<String, String> filter) {
     return Container(
@@ -106,6 +131,15 @@ class _PromoScreenState extends State<PromoScreen> {
         setState(() {
           _selectedCategory = category;
         });
+
+        if(category.serverId != null){
+          _fetchCategoryPromotions(category.serverId!);
+        }else{
+          setState(() {
+            _currentPromotions = [];
+          });
+        }
+
       },
       child: Container(
         constraints: BoxConstraints(minWidth: 70),
@@ -139,7 +173,7 @@ class _PromoScreenState extends State<PromoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentPromotions = _dummyData[_selectedCategory] ?? [];
+    final displayPromotions = _currentPromotions;
 
     return Scaffold(
       body: SafeArea(
@@ -259,27 +293,27 @@ class _PromoScreenState extends State<PromoScreen> {
               SizedBox(height: 25),
               //promo view
               Expanded(
-                child: currentPromotions.isEmpty
-                    ? Center(child: Text("등록된 프로모션이 없습니다."))
+                child: _isLoading
+                    ? const Center(child: Text("등록된 프로모션이 없습니다."))
                     : ListView.builder(
-                        itemCount: currentPromotions.length,
-                        itemBuilder: (context, index) {
-                          final data = currentPromotions[index];
-                          return PromotionBlock(
-                            imageURL: data.imageURL,
-                            title: data.title,
-                            deadline: data.deadline,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPromotion(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                  itemCount: displayPromotions.length,
+                  itemBuilder: (context, index) {
+                    final data = displayPromotions[index];
+                    return PromotionBlock(
+                      imageURL: data.imageURL,
+                      title: "${data.name} ${data.discountValue}% 할인",
+                      deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailPromotion(promotionData: data,),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
