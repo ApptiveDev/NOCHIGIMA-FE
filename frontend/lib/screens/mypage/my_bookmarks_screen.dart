@@ -10,6 +10,39 @@ class MyBookmarksScreen extends StatefulWidget{
 
 
 class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
+  final List<Map<String, dynamic>> _brandList = [
+    {
+      "logoColor": const Color(0xFFF5EBDC),
+      "logoText": "BURGER\nKING",
+      "logoTextColor": Colors.red,
+      "category": "햄버거",
+      "brandName": "버거킹",
+      "storeCount": 6,
+    },
+    {
+      "logoColor": const Color(0xFFDA0015),
+      "logoText": "M",
+      "logoTextColor": Colors.yellow,
+      "category": "햄버거",
+      "brandName": "맥도날드",
+      "storeCount": 4,
+    },
+    {
+      "logoColor": const Color(0xFF009345),
+      "logoText": "신전",
+      "logoTextColor": Colors.white,
+      "category": "떡볶이",
+      "brandName": "신전떡볶이",
+      "storeCount": 2,
+    },
+  ];
+
+  void _removeBrand(int index){
+    setState(() {
+      _brandList.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -35,7 +68,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
             },
           ),
           // 탭바 구현
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorColor: Color(0xFF323439),
             indicatorWeight: 2.0,
@@ -44,14 +77,35 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
             unselectedLabelColor: Colors.grey,
             unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
             tabs: [
-              Tab(text: "나의 브랜드 (7)"),
+              Tab(text: "나의 브랜드 (${_brandList.length})"),
               Tab(text: "저장한 프로모션 (65)"),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            _buildMyBrandsList(),
+            _brandList.isEmpty ? const Center(child: Text("즐겨찾기한 브랜드가 없습니다."),)
+            : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              itemCount: _brandList.length,
+              itemBuilder: (context, index) {
+                final item = _brandList[index];
+                return Column(
+                  children: [
+                    _buildBrandItem(
+                      index: index, // 몇 번째 아이템인지 전달
+                      logoColor: item['logoColor'],
+                      logoText: item['logoText'],
+                      logoTextColor: item['logoTextColor'],
+                      category: item['category'],
+                      brandName: item['brandName'],
+                      storeCount: item['storeCount'],
+                    ),
+                    const SizedBox(height: 20), // 간격
+                  ],
+                );
+              },
+            ),
             const Center(child: Text("저장한 프로모션 화면입니다.")),
           ],
         ),
@@ -59,42 +113,9 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
     );
   }
 
-  // 브랜드 리스트 위젯
-  Widget _buildMyBrandsList() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      children: [
-        _buildBrandItem(
-          logoColor: const Color(0xFFF5EBDC), // 베이지색 배경
-          logoText: "BURGER\nKING",
-          logoTextColor: Colors.red,
-          category: "햄버거",
-          brandName: "버거킹",
-          storeCount: 6,
-        ),
-        const SizedBox(height: 20),
-        _buildBrandItem(
-          logoColor: const Color(0xFFDA0015), // 빨간색 배경
-          logoText: "M",
-          logoTextColor: Colors.yellow,
-          category: "햄버거",
-          brandName: "맥도날드",
-          storeCount: 4,
-        ),
-        const SizedBox(height: 20),
-        _buildBrandItem(
-          logoColor: const Color(0xFF009345), // 초록색 배경
-          logoText: "신전",
-          logoTextColor: Colors.white,
-          category: "떡볶이",
-          brandName: "신전떡볶이",
-          storeCount: 2,
-        ),
-      ],
-    );
-  }
 
   Widget _buildBrandItem({
+    required int index,
     required Color logoColor,
     required String logoText,
     required Color logoTextColor,
@@ -169,6 +190,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
         // 3. 하트
         IconButton(
           onPressed: () {
+            _removeBrand(index);
           },
           icon: const Icon(
             Icons.favorite,
