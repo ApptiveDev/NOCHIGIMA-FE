@@ -1,38 +1,62 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/app_colors.dart';
 import 'package:frontend/models/my_bookmarks_brand.dart';
 import 'package:frontend/widgets/home/bookmarks_card.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-final List<Brand> bookmarkBrands = [
-  Brand(
-    brandId: 0,
-    imageUrl: 'assets/images/logo_burgerking.svg',
-    brandName: '버거킹',
-    categoryId:0,
-    discountedProductCount: 15,
-  ),
-  Brand(
-    brandId: 1,
-    imageUrl: 'assets/images/logo_burgerking.svg',
-    brandName: '맥도날드',
-    categoryId: 0,
-    discountedProductCount: 0,
-  ),
-  Brand(
-    brandId: 3,
-    imageUrl: 'assets/images/logo_burgerking.svg',
-    brandName: '신전떡볶이',
-    categoryId: 1,
-    discountedProductCount: 7,
-  ),
 
-  // ... 추가 브랜드
-];
 
-class MyBookmarks extends StatelessWidget {
+class MyBookmarks extends StatefulWidget {
   const MyBookmarks({super.key});
 
+  @override
+  State<MyBookmarks> createState() => _MyBookmarksState();
+}
+
+class _MyBookmarksState extends State<MyBookmarks> {
+  List<Brand> bookmarkBrands = [];
+  bool _isLoading = true;
+
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecentBookmarks();
+  }
+
+  Future<void> _fetchRecentBookmarks() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      final uri = Uri.https(baseUrl, '/v1/favorites/brands');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+
+        setState(() {
+          bookmarkBrands = jsonList.map((json) => Brand.fromJson(json)).toList();
+          _isLoading = false;
+        });
+      } else {
+        print("홈 즐겨찾기 로드 실패: ${response.statusCode}");
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print("홈 즐겨찾기 네트워크 에러: $e");
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +83,9 @@ class MyBookmarks extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => const MyBookmarksScreen(),
                   ),
-                  );
+                  ).then((_){
+                    _fetchRecentBookmarks();
+                  });
                 },
                 child: Row(
                   children: [
