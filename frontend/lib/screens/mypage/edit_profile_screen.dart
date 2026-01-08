@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/screens/login/setting_name.dart';
-import 'package:frontend/screens/mypage/change_nickname_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -209,7 +208,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                               trailing: CupertinoSwitch(
                                 value: _isMarketingAgreed,
-                                activeColor: Colors.green,
+                                activeTrackColor: Colors.green,
                                 onChanged: (value) {
                                   setState(() {
                                     _isMarketingAgreed = value;

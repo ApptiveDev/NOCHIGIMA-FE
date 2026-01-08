@@ -39,7 +39,7 @@ class SortBottomModal extends StatelessWidget {
             ),
           ),
           // 정렬 옵션 목록
-          ...sortOptions.map((option) => _buildSortItem(context, option)).toList(),
+          ...sortOptions.map((option) => _buildSortItem(context, option)),
           const SizedBox(height: 30), // 하단 여백
         ],
       ),

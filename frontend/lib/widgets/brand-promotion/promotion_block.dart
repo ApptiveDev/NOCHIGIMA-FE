@@ -47,7 +47,7 @@ class _PromotionBlockState extends State<PromotionBlock> {
                 // image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
+                  child: Image.network(
                     widget.imageURL,
                     width: double.infinity,
                     height: 180,
