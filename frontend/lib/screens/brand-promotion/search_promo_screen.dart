@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/screens/brand-promotion/brand_detail_screen.dart';
 import 'package:frontend/widgets/brand-promotion/popular_search_section.dart';
 import 'dart:convert';
@@ -54,6 +55,7 @@ class _SearchPromotionState extends State<SearchPromotion> {
       print("응답 코드: ${response.statusCode}");
 
       if (response.statusCode == 200) {
+        print("서버 응답 데이터 : ${utf8.decode(response.bodyBytes)}");
         List<dynamic> list = json.decode(utf8.decode(response.bodyBytes));
 
         setState(() {
@@ -169,15 +171,22 @@ class _SearchPromotionState extends State<SearchPromotion> {
                 final String name = brand['name'] ?? '이름 없음';
                 final String imageUrl = brand['imageUrl'] ?? '';
                 final int brandId = brand['brandId'] ?? 0;
-                final int discountedProductCount = brand['discountedProductCount'] ?? 0;
+                final int discountedProductCount =
+                    brand['discountedProductCount'] ?? 0;
 
                 return InkWell(
                   onTap: () {
-                    final brandObject = CategoryBrandData(brandId: brandId, name: name, imageUrl: imageUrl, discountedProductCount: discountedProductCount);
+                    final brandObject = CategoryBrandData(
+                      brandId: brandId,
+                      name: name,
+                      imageUrl: imageUrl,
+                      discountedProductCount: discountedProductCount,
+                    );
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BrandDetail(brandData: brandObject),
+                        builder: (context) =>
+                            BrandDetail(brandData: brandObject),
                       ),
                     );
                   },
@@ -193,15 +202,28 @@ class _SearchPromotionState extends State<SearchPromotion> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: imageUrl.isNotEmpty
-                              ? Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                        Icons.image_not_supported,
-                                        color: Colors.grey,
-                                      ),
-                                )
+                              ? (imageUrl.toLowerCase().endsWith('svg'))
+                                    ? SvgPicture.network(
+                                        imageUrl,
+                                        width: 50,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
+                                                  Icons.image_not_supported,
+                                                  color: Colors.grey,
+                                                ),
+                                      )
+                                    : Image.network(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
+                                                  Icons.image_not_supported,
+                                                  color: Colors.grey,
+                                                ),
+                                      )
                               : const Icon(Icons.store, color: Colors.grey),
                         ),
                       ),
