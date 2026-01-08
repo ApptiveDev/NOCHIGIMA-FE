@@ -38,12 +38,13 @@ class _MypageScreenState extends State<MypageScreen> {
           _isLoading = false;
         });
       }
-      // profile uri 확인 필요
-      final profileUri = Uri.https(baseUrl, '/v1/users/profile');
+
+      final profileUri = Uri.https(baseUrl, '/v1/users/me');
       final brandUri = Uri.https(baseUrl, '/v1/favorites/discounts');
       final promoUri = Uri.https(baseUrl, '/v1/favorites/discounts');
 
       final responses = await Future.wait([
+        http.get(profileUri, headers: {'Authorization':'Bearer $accessToken'}),
         http.get(brandUri, headers: {'Authorization': 'Bearer $accessToken'}),
         http.get(promoUri, headers: {'Authorization': 'Bearer $accessToken'}),
       ]);
@@ -184,8 +185,8 @@ class _MypageScreenState extends State<MypageScreen> {
                               ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => EditProfileScreen(),
