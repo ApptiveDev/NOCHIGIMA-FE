@@ -1,4 +1,4 @@
-class BrandProduct {
+class ProductData {
   final int productId;
   final String name;
   final int price;
@@ -9,7 +9,7 @@ class BrandProduct {
   final String discountEndAt;
   final int discountedPrice;
 
-  BrandProduct({
+  ProductData({
     required this.productId,
     required this.name,
     required this.price,
@@ -21,8 +21,8 @@ class BrandProduct {
     required this.discountedPrice,
   });
 
-  factory BrandProduct.fromJson(Map<String, dynamic> json) {
-    return BrandProduct(
+  factory ProductData.fromJson(Map<String, dynamic> json) {
+    return ProductData(
       productId: json['productId'],
       name: json['name'],
       price: json['price'],

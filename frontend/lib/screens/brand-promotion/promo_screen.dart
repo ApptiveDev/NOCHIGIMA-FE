@@ -307,7 +307,7 @@ class _PromoScreenState extends State<PromoScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailPromotion(promotionData: data,),
+                            builder: (context) => DetailPromotion(promotionData: data),
                           ),
                         );
                       },

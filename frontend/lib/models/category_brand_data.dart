@@ -1,22 +1,31 @@
-class Brand {
+class CategoryBrandData {
   final int brandId;
   final String name;
   final String imageUrl;
   final int discountedProductCount;
 
-  Brand({
+  CategoryBrandData({
     required this.brandId,
     required this.name,
     required this.imageUrl,
     required this.discountedProductCount,
   });
 
-  factory Brand.fromJson(Map<String, dynamic> json) {
-    return Brand(
+  factory CategoryBrandData.fromJson(Map<String, dynamic> json) {
+    return CategoryBrandData(
       brandId: json['brandId'],
       name: json['name'],
       imageUrl: json['imageUrl'],
       discountedProductCount: json['discountedProductCount'],
     );
   }
+
+  String get koreanName {
+    switch (name.toLowerCase().replaceAll(' ', '')) {
+      case 'burgerking': return '버거킹';
+      case 'mcdonalds': return '맥도날드';
+      default: return name;
+    }
+  }
+
 }
