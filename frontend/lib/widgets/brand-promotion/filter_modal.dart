@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/promotion_data.dart';
 
 class PromotionFilter {
   RangeValues? discountRange;
@@ -11,7 +12,8 @@ class PromotionFilter {
 }
 
 class FilterBottomSheet extends StatefulWidget {
-  const FilterBottomSheet({super.key});
+  final List<PromotionData> allPromotions;
+  const FilterBottomSheet({super.key, required this.allPromotions});
 
   @override
   _FilterBottomSheetState createState() => _FilterBottomSheetState();
@@ -33,9 +35,48 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Future<void> _fetchPromotionCount() async {
     setState(() => _isLoading = true);
 
-    await Future.delayed(const Duration(milliseconds: 400));
+    final filteredCount = widget.allPromotions.where((item) {
+      bool matchesDiscount = true;
+      if (_discountRange != null) {
+        final val = item.discountValue ?? 0;
+        matchesDiscount = val >= _discountRange!.start && val <= _discountRange!.end;
+      }
+      // [B] 기간 필터링 적용
+      bool matchesPeriod = true;
+      if (_selectedPeriod != null) {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day); // 오늘 00:00
+        final startDate = DateTime.parse(item.discountStartAt);
+        final endDate = DateTime.parse(item.discountEndAt);
+
+        switch (_selectedPeriod) {
+          case "오늘 진행 중":
+          // 오늘 날짜가 시작일과 종료일 사이에 있는지 확인
+            matchesPeriod = (startDate.isBefore(today) || startDate.isAtSameMomentAs(today)) &&
+                (endDate.isAfter(today) || endDate.isAtSameMomentAs(today));
+            break;
+          case "이번주 마감":
+          // 오늘부터 7일 이내에 마감되는 상품
+            final sevenDaysLater = today.add(const Duration(days: 7));
+            matchesPeriod = endDate.isAfter(today) && endDate.isBefore(sevenDaysLater);
+            break;
+          case "이번달 마감":
+          // 이번 달 안에 마감되는 상품
+            matchesPeriod = endDate.year == today.year && endDate.month == today.month;
+            break;
+          case "상시 이벤트":
+          // 종료일이 아주 먼 미래(2030년 이상)인 경우
+            matchesPeriod = endDate.year >= 2030;
+            break;
+        }
+      }
+
+      return matchesDiscount && matchesPeriod;
+    }).length;
+    await Future.delayed(const Duration(milliseconds: 200));
+
     setState(() {
-      _promotionCount = 00;
+      _promotionCount = filteredCount;
       _isLoading = false;
     });
   }
