@@ -4,6 +4,9 @@ import 'package:frontend/models/product_data.dart';
 import 'package:frontend/models/promotion_data.dart';
 import 'package:frontend/services/promotion_service.dart';
 import 'package:frontend/widgets/brand-promotion/brand_detail_widgets/brand_header_image.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 
 class BrandDetail extends StatefulWidget {
   final CategoryBrandData brandData;
@@ -15,12 +18,90 @@ class BrandDetail extends StatefulWidget {
 
 class _BrandDetailState extends State<BrandDetail> {
   late Future<List<PromotionData>> _promotionsFuture;
+  bool _isBookmarked = false;
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
 
   @override
   void initState() {
     super.initState();
     _promotionsFuture =
         PromotionService.fetchPromotionsByBrand(widget.brandData.brandId);
+    _checkInitialBookmarkStatus();
+  }
+
+  Future<void> _checkInitialBookmarkStatus() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      if (accessToken == null) return;
+
+      final uri = Uri.https(baseUrl, '/v1/favorites/brands');
+      final response = await http.get(
+        uri,
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> favorites = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          _isBookmarked = favorites.any((item) => item['brandId'] == widget.brandData.brandId);
+        });
+      }
+    } catch (e) {
+      print("찜 상태 확인 실패: $e");
+    }
+  }
+
+  Future<void> _toggleBrandBookmark() async {
+    String? accessToken = await storage.read(key: 'accessToken');
+    if (accessToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("로그인이 필요한 서비스입니다.")),
+      );
+      return;
+    }
+
+    setState(() {
+      _isBookmarked = !_isBookmarked;
+    });
+
+    try {
+      final uri = Uri.https(
+          baseUrl, '/v1/favorites/brands/${widget.brandData.brandId}');
+      final headers = {'Authorization': 'Bearer $accessToken'};
+
+      http.Response response;
+
+      if (_isBookmarked) {
+        // 찜 상태가 true가 되었으므로 -> 등록 요청 (POST)
+        print("브랜드 찜 등록 요청: ${widget.brandData.brandId}");
+        response = await http.post(uri, headers: headers);
+      } else {
+        // 찜 상태가 false가 되었으므로 -> 해제 요청 (DELETE)
+        print("브랜드 찜 해제 요청: ${widget.brandData.brandId}");
+        response = await http.delete(uri, headers: headers);
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        setState(() {
+          _isBookmarked = !_isBookmarked;
+        });
+        print("API 오류: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("즐겨찾기 변경에 실패했습니다.")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_isBookmarked ? "브랜드가 즐겨찾기에 추가되었습니다." : "즐겨찾기가 해제되었습니다."),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isBookmarked = !_isBookmarked;
+      });
+      print("네트워크 오류: $e");
+    }
   }
 
   @override
@@ -109,7 +190,7 @@ class _BrandDetailState extends State<BrandDetail> {
               Text(_translateBrandName(brand.name),
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.favorite_border)),
+                  onPressed: _toggleBrandBookmark, icon: Icon( _isBookmarked ? Icons.favorite : Icons.favorite_border, color: _isBookmarked ? Color(0xFFFF333F) : Color(0xFFAFB8C1),)),
             ],
           ),
           Wrap(
