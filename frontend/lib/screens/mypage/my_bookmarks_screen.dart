@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/widgets/mypage/brand_item.dart';
 import '../../widgets/mypage/mypage_widgets.dart';
 import '../../models/my_bookmarks_promotion.dart';
 import '../../models/my_bookmarks_brand.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyBookmarksScreen extends StatefulWidget {
   const MyBookmarksScreen({super.key});
@@ -13,74 +16,95 @@ class MyBookmarksScreen extends StatefulWidget {
 }
 
 class _MyBookmarksScreenState extends State<MyBookmarksScreen> {
-  final List<Brand> _brandList = [
-    Brand(
-      brandId: 1,
-      brandName: "버거킹",
-      imageUrl:
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Burger_King_logo_%281999%29.svg/2024px-Burger_King_logo_%281999%29.svg.png",
-      // 실제 테스트용 이미지 URL
-      discountedProductCount: 12,
-      categoryId: 0
-    ),
-    Brand(
-      brandId: 2,
-      brandName: "맥도날드",
-      imageUrl: "", // 이미지가 없는 경우 테스트
-      discountedProductCount: 5,
-      categoryId: 0
-    ),
-    Brand(
-      brandId: 3,
-      brandName: "신전떡볶이",
-      imageUrl: "broken_url", // 이미지가 깨진 경우 테스트
-      discountedProductCount: 8,
-      categoryId: 1
-    ),
-  ];
+  List<Brand> _brandList = [];
+  List<Promotion> _promotionList = [];
 
-  final List<Promotion> _promotionList = [
-    Promotion(
-      productId: 101,
-      productName: "와퍼 주니어 세트",
-      brandId: 1,
-      brandName: "버거킹",
-      price: 8000,
-      imageUrl:
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Burger_King_logo_%281999%29.svg/2024px-Burger_King_logo_%281999%29.svg.png",
-      isDiscountedNow: true,
-      // 할인 중 (초록색 아이콘)
-      discountValue: 0,
-      discountStartAt: "2026-01-08",
-      discountEndAt: "2026-01-15",
-      discountedPrice: 4500,
-    ),
-    Promotion(
-      productId: 102,
-      productName: "빅맥 런치 세트",
-      brandId: 2,
-      brandName: "맥도날드",
-      price: 7200,
-      imageUrl: "",
-      isDiscountedNow: false,
-      // 할인 종료 (회색 아이콘)
-      discountValue: 0,
-      discountStartAt: "2025-12-01",
-      discountEndAt: "2025-12-31",
-      discountedPrice: 5900,
-    ),
-  ];
+  bool _isLoading = true;
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
 
-  void _removeBrand(int index) {
-    setState(() {
-      _brandList.removeAt(index);
-    });
+  @override
+  void initState(){
+    super.initState();
+    _fetchAllBookmarks();
   }
 
-  void _removePromotion(int index) {
-    setState(() {
-      _promotionList.removeAt(index);
-    });
+  Future<void> _fetchAllBookmarks() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      if (accessToken == null) {return;}
+      final brandUri = Uri.https(baseUrl, '/v1/favorites/brands');
+      final promotionUri = Uri.https(baseUrl, '/v1/favorites/discounts');
+
+      final results = await Future.wait([
+        http.get(brandUri, headers: {'Authorization':'Bearer $accessToken'}),
+        http.get(promotionUri, headers: {'Authorization':'Bearer $accessToken'}),
+      ]);
+
+      final brandResponse = results[0];
+      final promotionResponse = results[1];
+
+      if (brandResponse.statusCode == 200 && promotionResponse.statusCode == 200){
+        final List<dynamic> brandJson = jsonDecode(utf8.decode(brandResponse.bodyBytes));
+        final List<dynamic> promotionJson = jsonDecode(utf8.decode(promotionResponse.bodyBytes));
+        setState(() {
+          _brandList = brandJson.map((json) => Brand.fromJson(json)).toList();
+          _promotionList = promotionJson.map((json) => Promotion.fromJson(json)).toList();
+          _isLoading = false;
+        });
+      } else {
+        print("데이터 로드 실패 : ${brandResponse.statusCode} / ${promotionResponse.statusCode}");
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("네트워크 에러: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  
+  Future<void> _removeBrand(int index) async {
+    final brandToRemove = _brandList[index];
+    try{
+      String? accessToken = await storage.read(key: 'accessToken');
+      final uri = Uri.https(baseUrl, '/v1/favorites/brands/${brandToRemove.brandId}');
+      final response = await http.delete(uri, headers: {'Authorization':'Bearer $accessToken'});
+
+      if (response.statusCode == 200 || response.statusCode == 204){
+        setState(() {
+          _brandList.removeAt(index);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("즐겨찾기가 해제되었습니다. ")));
+      } else {
+        print("삭제 실패: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("삭제에 실패했습니다. ")));
+      }
+    } catch (e) {
+      print("삭제 에러 : $e");
+    }
+  }
+
+  Future<void> _removePromotion(int index) async {
+    final promotionToRemove = _promotionList[index];
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      final uri = Uri.https(baseUrl, '/v1/favorites/discounts/${promotionToRemove.productId}');
+      final response = await http.delete(uri, headers: {'Authorization':'Bearer $accessToken'});
+
+      if (response.statusCode == 200 || response.statusCode== 204) {
+        setState(() {
+          _promotionList.removeAt(index);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('즐겨찾기가 해제되었습니다. ')));
+      } else {
+        print("삭제 실패 : ${response.statusCode}");
+      }
+    } catch (e) {
+      print("삭제 에러 : $e");
+    }
   }
 
   @override
@@ -122,7 +146,8 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen> {
             ],
           ),
         ),
-        body: TabBarView(
+        body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.grey))
+        : TabBarView(
           children: [
             _brandList.isEmpty
                 ? const Center(child: Text("즐겨찾기한 브랜드가 없습니다."))
