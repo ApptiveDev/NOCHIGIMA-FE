@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/brand-promotion/detail_promo_screen.dart';
 import 'package:frontend/widgets/brand-promotion/brand_promotion_widgets.dart';
@@ -26,97 +25,6 @@ class _PromoScreenState extends State<PromoScreen> {
 
   List<PromotionData> _currentPromotions = [];
   bool _isLoading = false;
-
-  final Set<int> _likedPromotionIds = {};
-  final _storage = const FlutterSecureStorage();
-  final String _baseUrl = "api.nochigima.shop";
-
-  @override
-  void initState(){
-    super.initState();
-    _selectedCategory = widget.initialCategory;
-    if (_selectedCategory.serverId != null) {
-      _fetchCategoryPromotions(_selectedCategory.serverId!);
-    }
-    _fetchMyBookmarkedIds();
-  }
-
-  Future<void> _fetchMyBookmarkedIds() async {
-    try {
-      String? accessToken = await _storage.read(key: 'accessToken');
-      if (accessToken == null) return;
-
-      final uri = Uri.https(_baseUrl, '/v1/favorites/discounts');
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        print("즐겨찾기 목록 : ${utf8.decode(response.bodyBytes)}");
-        List<dynamic> list = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          _likedPromotionIds.clear();
-          for (var item in list) {
-            if (item['productId'] != null) {
-              _likedPromotionIds.add(item['productId']);
-            }
-          }
-        });
-      }
-    } catch (e) {
-      print("즐겨찾기 목록 로드 실패: $e");
-    }
-  }
-
-  Future<void> _toggleBookmark(int promotionId) async {
-    String? accessToken = await _storage.read(key: 'accessToken');
-    final isAlreadyLiked = _likedPromotionIds.contains(promotionId);
-    setState(() {
-      if (isAlreadyLiked) {
-        _likedPromotionIds.remove(promotionId);
-      } else {
-        _likedPromotionIds.add(promotionId);
-      }
-    });
-
-    try {
-      final uri = Uri.https(_baseUrl, '/v1/favorites/discounts/$promotionId');
-      http.Response response;
-      if (isAlreadyLiked) { // 삭제
-        response = await http.delete(
-          uri,
-          headers: {'Authorization': 'Bearer $accessToken'},
-        );
-      } else { // 추가
-        response = await http.post(
-          uri,
-          headers: {'Authorization': 'Bearer $accessToken'},
-        );
-      }
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        print("즐겨찾기 변경 성공");
-        return;
-      }
-    } catch (e) {
-      print("즐겨찾기 변경 실패: $e");
-      setState(() {
-        if (isAlreadyLiked) {
-          _likedPromotionIds.add(promotionId);
-        } else {
-          _likedPromotionIds.remove(promotionId);
-        }
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("오류가 발생했습니다. 다시 시도해주세요.")),
-      );
-    }
-  }
 
   Future<void> _fetchCategoryPromotions(int categoryId) async{
     setState(() {
@@ -209,6 +117,12 @@ class _PromoScreenState extends State<PromoScreen> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategory;
+  }
+
   Widget _buildMenuItem(MenuCategory category) {
     bool isSelected = (_selectedCategory == category);
 
@@ -248,7 +162,7 @@ class _PromoScreenState extends State<PromoScreen> {
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? Colors.black : Colors.grey[600],
-                fontFamily: "Pretendard",
+                fontFamily: "Prentendard",
               ),
             ),
           ],
@@ -385,19 +299,36 @@ class _PromoScreenState extends State<PromoScreen> {
                   itemCount: displayPromotions.length,
                   itemBuilder: (context, index) {
                     final data = displayPromotions[index];
-                    final bool isLiked = data.productId != null ? _likedPromotionIds.contains(data.productId) : false;
-
                     return PromotionBlock(
                       imageURL: data.imageURL,
                       title: "${data.name} ${data.discountValue}% 할인",
                       deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
-                      isBookmarked : isLiked,
-                      onHeartTap : () => _toggleBookmark(data.productId!),
+                      isBookmarked: false,
+                      onHeartTap: () {
+                        setState(() {
+                          data.isBookmarked = !data.isBookmarked;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${data.name} 찜 완료!'),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            action: SnackBarAction(
+                              label: '취소',
+                              onPressed: () {
+                                // 취소 버튼 눌렀을 때 로직 (나중에 구현)
+                                print("찜 취소됨");
+                              },
+                            ),
+                          ),
+                        );
+                      },
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailPromotion(promotionData: data,),
+                            builder: (context) => DetailPromotion(promotionData: data),
                           ),
                         );
                       },

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../models/my_bookmarks_promotion.dart';
-import '../../models/my_bookmarks_promotion.dart';
 import '../../models/promotion_data.dart';
 import '../../screens/brand-promotion/detail_promo_screen.dart';
 
@@ -24,6 +23,7 @@ class PromotionItem extends StatelessWidget {
       onTap: () {
         final promotionData = PromotionData(
             productId: promotion.productId,
+            brandId: promotion.brandId,
             name: promotion.productName,
             price: promotion.price,
             imageURL: promotion.imageUrl,
