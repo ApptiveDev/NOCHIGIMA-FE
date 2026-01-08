@@ -81,16 +81,52 @@ class _PromoScreenState extends State<PromoScreen> {
   List<PromotionData> get filteredAndSortedPromotions {
     List<PromotionData> filtered = List.from(_currentPromotions);
 
-    // 2. 필터 적용
-    if (_currentFilter != null) {
-      filtered = filtered.where((item) {
-        // [A] 할인율 범위 필터
-        bool matchesDiscount = true;
-        if (_currentFilter!.discountRange != null) {
-          final val = item.discountValue ?? 0;
-          matchesDiscount = val >= _currentFilter!.discountRange!.start &&
-              val <= _currentFilter!.discountRange!.end;
-        }
+  Widget _buildSelectedFiltering(Map<String, String> filter) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFF25454)),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+              filter['label'] ?? "",
+              style: const TextStyle(color: Color(0xFFF25454), fontWeight: FontWeight.w500)
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                if(_currentFilter != null) {
+                  if (filter['type'] == 'discount') {
+                    _currentFilter!.discountRange = null;
+                  } else {
+                    _currentFilter!.period = null;
+                  }
+                  if (_currentFilter!.discountRange == null && _currentFilter!.period == null) {
+                    _currentFilter = null;
+                  }
+                }
+              });
+            },
+            child: const Icon(Icons.close, size: 16, color: Color(0xFFF25454)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategory;
+  }
+
+  Widget _buildMenuItem(MenuCategory category) {
+    bool isSelected = (_selectedCategory == category);
 
         // [B] 기간 필터
         bool matchesPeriod = true;
@@ -142,6 +178,35 @@ class _PromoScreenState extends State<PromoScreen> {
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+      },
+      child: Container(
+        constraints: BoxConstraints(minWidth: 70),
+        alignment: Alignment.center,
+        padding: EdgeInsets.fromLTRB(12, 0, 12, isSelected ? 12 : 13),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: isSelected
+                ? BorderSide(color: Colors.grey[800]!, width: 2)
+                : BorderSide(color: Color(0xFFF3F4F8), width: 1),
+          ),
+        ),
+        child: Column(
+          //mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(child: SvgPicture.asset(category.imagePath, height: 35)),
+            Text(
+              category.label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Colors.black : Colors.grey[600],
+                fontFamily: "Prentendard",
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -262,7 +327,6 @@ class _PromoScreenState extends State<PromoScreen> {
                 ),
               ),
               SizedBox(height: 25),
-              //promo view
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -278,14 +342,32 @@ class _PromoScreenState extends State<PromoScreen> {
                   deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
                   isBookmarked: data.isBookmarked,
                   onHeartTap: () {
-                    setState(() => data.isBookmarked = !data.isBookmarked);
-                  },
+                        setState(() {
+                          data.isBookmarked = !data.isBookmarked;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${data.name} 찜 완료!'),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            action: SnackBarAction(
+                              label: '취소',
+                              onPressed: () {
+                                // 취소 버튼 눌렀을 때 로직 (나중에 구현)
+                                print("찜 취소됨");
+                              },
+                            ),
+                          ),
+                        );
+                      },
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DetailPromotion(promotionData: data),
                       ),
+
                     );
                   },
                 );
