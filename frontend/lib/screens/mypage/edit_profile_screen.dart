@@ -65,7 +65,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Widget _getSocialIcon(String type){
   Future<void> _deleteAccount() async {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
@@ -245,7 +244,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   MaterialPageRoute(
                                     builder: (context) => Settingname(),
                                   ),
-                                ).then((_){_fetchUserProfile();});
+                                ).then((_) {
+                                  _fetchUserProfile();
+                                });
                               },
                             ),
                           ],
