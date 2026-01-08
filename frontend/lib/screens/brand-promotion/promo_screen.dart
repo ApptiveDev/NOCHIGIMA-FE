@@ -22,7 +22,7 @@ class _PromoScreenState extends State<PromoScreen> {
   late MenuCategory _selectedCategory;
   PromotionFilter? _currentFilter;
   String _currentSort = "추천순";
-
+  List<PromotionData> _promotions = [];
   List<PromotionData> _currentPromotions = [];
   bool _isLoading = false;
 
@@ -78,43 +78,64 @@ class _PromoScreenState extends State<PromoScreen> {
       });
     }
   }
+  List<PromotionData> get filteredAndSortedPromotions {
+    List<PromotionData> filtered = List.from(_currentPromotions);
 
-  Widget _buildSelectedFiltering(Map<String, String> filter) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFF25454)),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-              filter['label'] ?? "",
-              style: const TextStyle(color: Color(0xFFF25454), fontWeight: FontWeight.w500)
-          ),
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                if(_currentFilter != null) {
-                  if (filter['type'] == 'discount') {
-                    _currentFilter!.discountRange = null;
-                  } else {
-                    _currentFilter!.period = null;
-                  }
-                  if (_currentFilter!.discountRange == null && _currentFilter!.period == null) {
-                    _currentFilter = null;
-                  }
-                }
-              });
-            },
-            child: const Icon(Icons.close, size: 16, color: Color(0xFFF25454)),
-          ),
-        ],
-      ),
-    );
+    // 2. 필터 적용
+    if (_currentFilter != null) {
+      filtered = filtered.where((item) {
+        // [A] 할인율 범위 필터
+        bool matchesDiscount = true;
+        if (_currentFilter!.discountRange != null) {
+          final val = item.discountValue ?? 0;
+          matchesDiscount = val >= _currentFilter!.discountRange!.start &&
+              val <= _currentFilter!.discountRange!.end;
+        }
+
+        // [B] 기간 필터
+        bool matchesPeriod = true;
+        if (_currentFilter!.period != null) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final startDate = DateTime.parse(item.discountStartAt);
+          final endDate = DateTime.parse(item.discountEndAt);
+
+          switch (_currentFilter!.period) {
+            case "오늘 진행 중":
+              matchesPeriod = (startDate.isBefore(today) || startDate.isAtSameMomentAs(today)) &&
+                  (endDate.isAfter(today) || endDate.isAtSameMomentAs(today));
+              break;
+            case "이번주 마감":
+              final sevenDaysLater = today.add(const Duration(days: 7));
+              matchesPeriod = endDate.isAfter(today) && endDate.isBefore(sevenDaysLater);
+              break;
+            case "이번달 마감":
+              matchesPeriod = endDate.year == today.year && endDate.month == today.month;
+              break;
+            case "상시 이벤트":
+              matchesPeriod = endDate.year >= 2030;
+              break;
+          }
+        }
+        return matchesDiscount && matchesPeriod;
+      }).toList();
+    }
+
+    // 3. 정렬 적용
+    if (_currentSort == "최신순") {
+      filtered.sort((a, b) => b.discountStartAt.compareTo(a.discountStartAt));
+    } else if (_currentSort == "할인율") {
+      filtered.sort((a, b) => (b.discountValue ?? 0).compareTo(a.discountValue ?? 0));
+    } else if (_currentSort == "인기순") {
+      filtered.sort((a, b) => b.productId.compareTo(a.productId));
+    }
+
+    return filtered;
+  }
+  void _sortPromotions(String criteria) {
+    setState(() {
+      _currentSort = criteria;
+    });
   }
 
   @override
@@ -123,6 +144,161 @@ class _PromoScreenState extends State<PromoScreen> {
     _selectedCategory = widget.initialCategory;
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final displayPromotions = filteredAndSortedPromotions;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 90,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: MenuCategory.values.map((category) {
+                    return _buildMenuItem(category);
+                  }).toList(),
+                ),
+              ),
+              SizedBox(height: 25),
+              SizedBox(
+                //filter
+                height: 36,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    //FILTER
+                    FilterButton(
+                      // 추천순 button
+                      onPressed: () async {
+                        final String? result = await showModalBottomSheet<String>(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (context) => SortBottomModal(selectedSort: _currentSort),
+                        );
+
+                        if (result != null && mounted) {
+                            _sortPromotions(result);
+                        }
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _currentSort,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF323439),
+                              fontFamily: "Pretendard",
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Icon(
+                            Icons.expand_more_rounded,
+                            color: Color(0xFF323439),
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    FilterButton(
+                      // 필터 button
+                      onPressed: () async {
+                        final PromotionFilter? result = await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return FilterBottomSheet(allPromotions: _currentPromotions);
+                          },
+                        );
+
+                        if(!mounted) return;
+
+                        if (result != null){
+                          setState(() {
+                            _currentFilter = result;
+                          });
+                        }
+                      },
+                      padding: EdgeInsets.all(8.0),
+                      borderColor: Color(0xFFE2E4EC),
+                      child: Icon(Icons.tune_rounded, color: Color(0xFF323439)),
+                    ),
+                    SizedBox(width: 8),
+                    VerticalDivider(
+                      thickness: 1,
+                      width: 1,
+                      color: Color(0xFFF3F4F8),
+                      indent: 4,
+                      endIndent: 4,
+                    ),
+                    const SizedBox(width: 8,),
+                    if(_currentFilter != null)
+                      if(_currentFilter?.discountRange != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right:8),
+                          child: _buildSelectedFiltering({
+                            'label': "${_currentFilter!.discountRange!.start.round()}~${_currentFilter!.discountRange!.end.round()}% 할인",
+                            'type': 'discount'
+                          }),
+                        ),
+                    if (_currentFilter?.period != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: _buildSelectedFiltering({
+                          'label': _currentFilter!.period!,
+                          'type': 'period'
+                        }),
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 25),
+              //promo view
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : displayPromotions.isEmpty
+                ? const Center(child: Text("조건에 맞는 프로모션이 없습니다."))
+                : ListView.builder(
+              itemCount: displayPromotions.length,
+              itemBuilder: (context, index) {
+                final data = displayPromotions[index];
+                return PromotionBlock(
+                  imageURL: data.imageURL,
+                  title: "${data.name} ${data.discountValue ?? 0}% 할인",
+                  deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
+                  isBookmarked: data.isBookmarked,
+                  onHeartTap: () {
+                    setState(() => data.isBookmarked = !data.isBookmarked);
+                  },
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailPromotion(promotionData: data),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Row(),
+    );
+  }
   Widget _buildMenuItem(MenuCategory category) {
     bool isSelected = (_selectedCategory == category);
 
@@ -171,176 +347,42 @@ class _PromoScreenState extends State<PromoScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final displayPromotions = _currentPromotions;
-
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 90,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: MenuCategory.values.map((category) {
-                    return _buildMenuItem(category);
-                  }).toList(),
-                ),
-              ),
-              SizedBox(height: 25),
-              SizedBox(
-                //filter
-                height: 36,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    //FILTER
-                    FilterButton(
-                      // 추천순 button
-                      onPressed: () async {
-                        final String? result = await showModalBottomSheet<String>(
-                          context: context,
-                          backgroundColor: Colors.transparent, // 모달의 둥근 모서리를 살리기 위해 투명 설정
-                          isScrollControlled: true,
-                          builder: (context) => SortBottomModal(selectedSort: _currentSort),
-                        );
-
-                        if (result != null && mounted) {
-                          setState(() {
-                            _currentSort = result;
-                          });
-                        }
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _currentSort,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF323439),
-                              fontFamily: "Pretendard",
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          Icon(
-                            Icons.expand_more_rounded,
-                            color: Color(0xFF323439),
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    FilterButton(
-                      // 필터 button
-                      onPressed: () async {
-                        final PromotionFilter? result = await showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) {
-                            return FilterBottomSheet();
-                          },
-                        );
-
-                        if(!mounted) return;
-
-                        if (result != null){
-                          setState(() {
-                            _currentFilter = result;
-                          });
-                        }
-                      },
-                      padding: EdgeInsets.all(8.0),
-                      borderColor: Color(0xFFE2E4EC),
-                      child: Icon(Icons.tune_rounded, color: Color(0xFF323439)),
-                    ),
-                    SizedBox(width: 8),
-                    VerticalDivider(
-                      thickness: 1,
-                      width: 1,
-                      color: Color(0xFFF3F4F8),
-                      indent: 4,
-                      endIndent: 4,
-                    ),
-                    const SizedBox(width: 8,),
-                    if(_currentFilter != null)
-                      if(_currentFilter?.discountRange != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right:8),
-                          child: _buildSelectedFiltering({
-                            'label': "${_currentFilter!.discountRange!.start.round()}~${_currentFilter!.discountRange!.end.round()}% 할인",
-                            'type': 'discount'
-                          }),
-                        ),
-                    if (_currentFilter?.period != null)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _buildSelectedFiltering({
-                          'label': _currentFilter!.period!,
-                          'type': 'period'
-                        }),
-                      ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 25),
-              //promo view
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: Text("등록된 프로모션이 없습니다."))
-                    : ListView.builder(
-                  itemCount: displayPromotions.length,
-                  itemBuilder: (context, index) {
-                    final data = displayPromotions[index];
-                    return PromotionBlock(
-                      imageURL: data.imageURL,
-                      title: "${data.name} ${data.discountValue}% 할인",
-                      deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
-                      isBookmarked: false,
-                      onHeartTap: () {
-                        setState(() {
-                          data.isBookmarked = !data.isBookmarked;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${data.name} 찜 완료!'),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            action: SnackBarAction(
-                              label: '취소',
-                              onPressed: () {
-                                // 취소 버튼 눌렀을 때 로직 (나중에 구현)
-                                print("찜 취소됨");
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPromotion(promotionData: data),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+  Widget _buildSelectedFiltering(Map<String, String> filter) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFF25454)),
+        borderRadius: BorderRadius.circular(20),
       ),
-      bottomNavigationBar: Row(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+              filter['label'] ?? "",
+              style: const TextStyle(color: Color(0xFFF25454), fontWeight: FontWeight.w500)
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                if(_currentFilter != null) {
+                  if (filter['type'] == 'discount') {
+                    _currentFilter!.discountRange = null;
+                  } else {
+                    _currentFilter!.period = null;
+                  }
+                  if (_currentFilter!.discountRange == null && _currentFilter!.period == null) {
+                    _currentFilter = null;
+                  }
+                }
+              });
+            },
+            child: const Icon(Icons.close, size: 16, color: Color(0xFFF25454)),
+          ),
+        ],
+      ),
     );
   }
+
 }
