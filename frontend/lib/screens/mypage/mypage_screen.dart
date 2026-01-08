@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/mypage/edit_profile_screen.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -14,7 +17,12 @@ class MypageScreen extends StatefulWidget {
 
 class _MypageScreenState extends State<MypageScreen> {
   String _nickname = "";
+  int _brandCount = 0;
+  int _promotionCount = 0;
   bool _isLoading = true;
+
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
 
   @override
   void initState() {
@@ -24,13 +32,42 @@ class _MypageScreenState extends State<MypageScreen> {
 
   Future<void> _fetchMyProfile() async {
     try {
-      // backend 연결 필요
-      await Future.delayed(const Duration(seconds: 1));
-      final nickname = "모아부기";
-
-      if (mounted) {
+      String? accessToken = await storage.read(key: 'accessToken');
+      if (accessToken == null) {
         setState(() {
-          _nickname = nickname;
+          _isLoading = false;
+        });
+      }
+
+      final brandUri = Uri.https(baseUrl, '/v1/favorites/discounts');
+      final promoUri = Uri.https(baseUrl, '/v1/favorites/discounts');
+
+      final responses = await Future.wait([
+        http.get(brandUri, headers: {'Authorization': 'Bearer $accessToken'}),
+        http.get(promoUri, headers: {'Authorization': 'Bearer $accessToken'}),
+      ]);
+
+      final brandResponse = responses[0];
+      final promoResponse = responses[1];
+
+      if (brandResponse.statusCode == 200 && promoResponse.statusCode == 200) {
+        final List<dynamic> brandList = jsonDecode(
+          utf8.decode(brandResponse.bodyBytes),
+        );
+        final List<dynamic> promoList = jsonDecode(
+          utf8.decode(promoResponse.bodyBytes),
+        );
+        if (mounted) {
+          setState(() {
+            _nickname = "모아부기"; // 실제 닉네임 API가 있다면 여기에 연결
+            _brandCount = brandList.length; // 리스트 개수 카운트
+            _promotionCount = promoList.length; // 리스트 개수 카운트
+            _isLoading = false;
+          });
+        }
+      } else {
+        print("데이터 로드 실패: ${brandResponse.statusCode}");
+        setState(() {
           _isLoading = false;
         });
       }
@@ -67,9 +104,21 @@ class _MypageScreenState extends State<MypageScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    buildDialogButton(text: "취소", textColor: Color(0xFF686D78), onTap: (){Navigator.pop(context);}, borderColor: Color(0xFFE2E4EC)),
+                    buildDialogButton(
+                      text: "취소",
+                      textColor: Color(0xFF686D78),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      borderColor: Color(0xFFE2E4EC),
+                    ),
                     SizedBox(width: 10),
-                    buildDialogButton(text: "로그아웃", textColor: Colors.white, onTap: (){}, backgroundColor: Color(0xFFFF333F))
+                    buildDialogButton(
+                      text: "로그아웃",
+                      textColor: Colors.white,
+                      onTap: () {},
+                      backgroundColor: Color(0xFFFF333F),
+                    ),
                   ],
                 ),
               ],
@@ -126,7 +175,15 @@ class _MypageScreenState extends State<MypageScreen> {
                               ),
                       ),
                       ElevatedButton(
-                        onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditProfileScreen(),
+                            ),
+                          );
+                          _fetchMyProfile();
+                        },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: EdgeInsets.symmetric(
@@ -166,24 +223,24 @@ class _MypageScreenState extends State<MypageScreen> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: buildItem("4", "나의 브랜드", () {
+                          child: buildItem("$_brandCount", "나의 브랜드", () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => MyBookmarksScreen(),
                               ),
-                            );
+                            ).then((_){_fetchMyProfile();});
                           }),
                         ),
                         buildDivider(),
                         Expanded(
-                          child: buildItem("13", "저장한 프로모션", () {
+                          child: buildItem("$_promotionCount", "저장한 프로모션", () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => MyBookmarksScreen(),
                               ),
-                            );
+                            ).then((_){_fetchMyProfile();});
                           }),
                         ),
                       ],
