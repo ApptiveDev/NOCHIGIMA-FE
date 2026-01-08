@@ -9,7 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MypageScreen extends StatefulWidget {
-  const MypageScreen({super.key});
+  final int initialIndex;
+  const MypageScreen({super.key, this.initialIndex = 0});
 
   @override
   State<MypageScreen> createState() => _MypageScreenState();
@@ -40,8 +41,8 @@ class _MypageScreenState extends State<MypageScreen> {
       }
 
       final profileUri = Uri.https(baseUrl, '/v1/users/me');
-      final brandUri = Uri.https(baseUrl, '/v1/favorites/discounts');
       final promoUri = Uri.https(baseUrl, '/v1/favorites/discounts');
+      final brandUri = Uri.https(baseUrl, '/v1/favorites/brand');
 
       final responses = await Future.wait([
         http.get(profileUri, headers: {'Authorization':'Bearer $accessToken'}),
@@ -237,7 +238,7 @@ class _MypageScreenState extends State<MypageScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyBookmarksScreen(),
+                                builder: (context) => MyBookmarksScreen(initialIndex: 0,),
                               ),
                             ).then((_) {
                               _fetchMyProfile();
@@ -250,7 +251,7 @@ class _MypageScreenState extends State<MypageScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyBookmarksScreen(),
+                                builder: (context) => MyBookmarksScreen(initialIndex: 1,),
                               ),
                             ).then((_) {
                               _fetchMyProfile();

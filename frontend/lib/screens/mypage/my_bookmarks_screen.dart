@@ -9,7 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyBookmarksScreen extends StatefulWidget {
-  const MyBookmarksScreen({super.key});
+  final int initialIndex;
+  const MyBookmarksScreen({super.key, this.initialIndex = 0});
 
   @override
   State<MyBookmarksScreen> createState() => _MyBookmarksScreenState();
@@ -111,6 +112,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
+      initialIndex: widget.initialIndex,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
