@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/screens/login/setting_name.dart';
-import 'package:frontend/screens/mypage/change_nickname_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -14,6 +16,71 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isMarketingAgreed = true;
+  String _nickname = "";
+  String _socialType = "";
+  bool _isLoading = true;
+
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      if (accessToken == null) return;
+
+      final uri = Uri.https(baseUrl, '/v1/users/me');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+
+        if (mounted) {
+          setState(() {
+            _nickname = data['nickname'] ?? "알 수 없음";
+            _socialType = data['oauthProvider'] ?? "KAKAO"; // 기본값 혹은 null 처리
+            _isLoading = false;
+          });
+        }
+      } else {
+        print("프로필 로드 실패: ${response.statusCode}");
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print("네트워크 에러: $e");
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Widget _getSocialIcon(String type){
+    String iconPath;
+    switch (type.toUpperCase()) {
+      case 'GOOGLE':
+        iconPath = "assets/images/google_icon.svg";
+        break;
+      case 'KAKAO':
+      default:
+        iconPath = "assets/images/kakao_icon_mini.svg";
+        break;
+    }
+    return SvgPicture.asset(
+      iconPath,
+      width: 36,
+      placeholderBuilder: (context) => const Icon(Icons.account_circle, color: Colors.grey,),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +143,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             buildEditMenu(
                               label: "닉네임",
                               trailing: Text(
-                                "모아부기",
+                                _nickname,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontFamily: "Pretendard",
@@ -88,10 +155,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        Settingname(),
+                                    builder: (context) => Settingname(),
                                   ),
-                                );
+                                ).then((_){_fetchUserProfile();});
                               },
                             ),
                           ],
@@ -142,7 +208,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                               trailing: CupertinoSwitch(
                                 value: _isMarketingAgreed,
-                                activeColor: Colors.green,
+                                activeTrackColor: Colors.green,
                                 onChanged: (value) {
                                   setState(() {
                                     _isMarketingAgreed = value;
@@ -166,10 +232,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           children: [
                             buildEditMenu(
                               label: "연동된 소셜 계정",
-                              trailing: SvgPicture.asset(
-                                "assets/images/kakao_icon_mini.svg",
-                                width: 36,
-                              ),
+                              trailing: _getSocialIcon(_socialType),
                               onTap: () {},
                             ),
                           ],
@@ -186,7 +249,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               color: Color(0xFFFF333F),
                               fontWeight: FontWeight.w500,
                               fontSize: 12,
-                              fontFamily: "Pretender",
+                              fontFamily: "Pretendard",
                               decoration: TextDecoration.underline,
                               decorationColor: Color(0xFFFF333F),
                             ),

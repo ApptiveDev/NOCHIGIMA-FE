@@ -1,21 +1,19 @@
-import 'dart:ui';
-
-class PromotionData {
+class BrandProduct {
   final int productId;
   final String name;
   final int price;
-  final String imageURL;
+  final String imageUrl;
   final bool isDiscountedNow;
-  final int discountValue;
+  final int? discountValue; // null 가능
   final String discountStartAt;
   final String discountEndAt;
   final int discountedPrice;
 
-  PromotionData({
+  BrandProduct({
     required this.productId,
     required this.name,
     required this.price,
-    required this.imageURL,
+    required this.imageUrl,
     required this.isDiscountedNow,
     required this.discountValue,
     required this.discountStartAt,
@@ -23,14 +21,14 @@ class PromotionData {
     required this.discountedPrice,
   });
 
-  factory PromotionData.fromJson(Map<String, dynamic> json) {
-    return PromotionData(
-      productId: json['productId'] ?? 0,
-      name: json['name'] ?? " ",
-      price: json['price'] ?? 0,
-      imageURL: json['imageUrl'] ?? "",
+  factory BrandProduct.fromJson(Map<String, dynamic> json) {
+    return BrandProduct(
+      productId: json['productId'],
+      name: json['name'],
+      price: json['price'],
+      imageUrl: json['imageUrl'],
       isDiscountedNow: json['isDiscountedNow'],
-      discountValue: json['discountValue'] ?? 0,
+      discountValue: json['discountValue'],
       discountStartAt: json['discountStartAt'],
       discountEndAt: json['discountEndAt'],
       discountedPrice: json['discountedPrice'],

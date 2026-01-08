@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:frontend/core/app_colors.dart';
 
 // Promotion block
-class PromotionBlock extends StatefulWidget {
+class PromotionBlock extends StatelessWidget {
   final VoidCallback onPressed;
   final String imageURL;
   final String title;
   final String deadline;
   final List<String> filters;
-  final bool isLiked;
+  final bool isBookmarked;
+  final VoidCallback onHeartTap;
 
   const PromotionBlock({
     super.key,
@@ -16,27 +17,16 @@ class PromotionBlock extends StatefulWidget {
     required this.title,
     required this.deadline,
     this.filters = const [],
-    this.isLiked = false,
     required this.onPressed,
+    required this.isBookmarked,
+    required this.onHeartTap,
+
   });
-
-  @override
-  State<PromotionBlock> createState() => _PromotionBlockState();
-}
-
-class _PromotionBlockState extends State<PromotionBlock> {
-  late bool _isLiked;
-
-  @override
-  void initState() {
-    super.initState();
-    _isLiked = widget.isLiked;
-  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: widget.onPressed,
+      onTap: onPressed,
       child: Container(
         margin: EdgeInsets.only(bottom: 24),
         child: Column(
@@ -47,11 +37,19 @@ class _PromotionBlockState extends State<PromotionBlock> {
                 // image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    widget.imageURL,
+                  child: Image.network(
+                    imageURL,
                     width: double.infinity,
                     height: 180,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace){
+                      return Container(
+                        width: double.infinity,
+                        height: 180,
+                        color: Colors.grey,
+                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                      );
+                    },
                   ),
                 ),
                 // like
@@ -59,11 +57,7 @@ class _PromotionBlockState extends State<PromotionBlock> {
                   bottom: 12,
                   right: 12,
                   child: GestureDetector(
-                    onTap: (){
-                      setState(() {
-                        _isLiked = !_isLiked;
-                      });
-                    },
+                    onTap: onHeartTap,
                     child: Container(
                       padding: EdgeInsets.all(6),
                       decoration: BoxDecoration(
@@ -71,8 +65,8 @@ class _PromotionBlockState extends State<PromotionBlock> {
                         color: Colors.black.withOpacity(0.6),
                       ),
                       child: Icon(
-                        _isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: _isLiked ? AppColors.nochigimaColor : Colors.white,
+                        isBookmarked ? Icons.favorite : Icons.favorite_border,
+                        color: isBookmarked ? AppColors.nochigimaColor : Colors.white,
                         size: 20,
                       ),
                     ),
@@ -83,7 +77,7 @@ class _PromotionBlockState extends State<PromotionBlock> {
             SizedBox(height: 10),
             // title
             Text(
-              widget.title,
+              title,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF323439),
@@ -113,7 +107,7 @@ class _PromotionBlockState extends State<PromotionBlock> {
                 ),
                 SizedBox(width: 8),
                 Text(
-                  widget.deadline,
+                  deadline,
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
                     color: Color(0xFF858C9A),

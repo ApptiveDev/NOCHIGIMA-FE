@@ -34,20 +34,25 @@ class _MainScreenState extends State<MainScreen>{
     });
   }
 
+  Widget _getBody(){
+    switch (_selectedIndex) {
+      case 0:
+        return HomeScreen(onCategoryTap: _onCategorySelected);
+      case 1:
+        return const SearchPromotion();
+      case 2:
+        return PromoScreen(key: ValueKey(_targetCatetory),initialCategory: _targetCatetory,);
+      case 3:
+        return const SocialScreen();
+      case 4:
+        return const MypageNavigator();
+      default:
+        return HomeScreen(onCategoryTap: _onCategorySelected);
+    }
+  }
+
   @override
   Widget build(BuildContext context){
-
-    final List<Widget> pages = <Widget>[
-      HomeScreen(onCategoryTap: _onCategorySelected,),
-      const SearchPromotion(),
-      PromoScreen(
-        key: ValueKey(_targetCatetory),
-        initialCategory: _targetCatetory,
-      ),
-      const SocialScreen(),
-      const MypageNavigator(),
-    ];
-
     BottomNavigationBarItem svgItem(String asset, String label, int idx){
       final bool active = _selectedIndex == idx;
       final Color color = active? AppColors.nochigimaColor : Colors.grey[300]!;
@@ -63,10 +68,7 @@ class _MainScreenState extends State<MainScreen>{
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: pages,
-      ),
+      body: _getBody(),
       bottomNavigationBar: BottomAppBar(
         height: 89,
 
@@ -89,13 +91,13 @@ class _MainScreenState extends State<MainScreen>{
             ),
             NavItemWidget(
               assetName: 'assets/images/nav/nav_ourtown.svg',
-              label:'우리동네',
+              label:'프로모션',
               isSelected: (_selectedIndex == 2),
               onTap: () => _onTapped(2),
             ),
             NavItemWidget(
               assetName: 'assets/images/nav/nav_social.svg',
-              label:'소셜',
+              label:'브랜드',
               isSelected: (_selectedIndex == 3),
               onTap: () => _onTapped(3),
             ),
