@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../models/my_bookmarks_promotion.dart';
+import '../../models/my_bookmarks_promotion.dart';
+import '../../models/promotion_data.dart';
+import '../../screens/brand-promotion/detail_promo_screen.dart';
 
 class PromotionItem extends StatelessWidget {
   final Promotion promotion;
@@ -18,7 +21,22 @@ class PromotionItem extends StatelessWidget {
     final numberFormat = NumberFormat('###,###,###,###');
     return InkWell(
       borderRadius: BorderRadius.circular(20),
-      onTap: () {},
+      onTap: () {
+        final promotionData = PromotionData(
+            productId: promotion.productId,
+            name: promotion.productName,
+            price: promotion.price,
+            imageURL: promotion.imageUrl,
+            isDiscountedNow: promotion.isDiscountedNow,
+            discountValue: 0,
+            discountStartAt: promotion.discountStartAt,
+            discountEndAt: promotion.discountEndAt,
+            discountedPrice: promotion.discountedPrice);
+
+        Navigator.push(
+          context, MaterialPageRoute(builder: (context)=>DetailPromotion(promotionData: promotionData))
+        );
+      },
       child: Row(
         children: [
           Container(
@@ -29,13 +47,24 @@ class PromotionItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
-              child: Text(
-                promotion.imageUrl,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF323439),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  promotion.imageUrl,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 50,
+                      height: 50,
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
