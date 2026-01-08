@@ -3,7 +3,7 @@ import '../../models/my_bookmarks_brand.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BookmarksCard extends StatelessWidget{
-  final BookmarksBrand brand;
+  final Brand brand;
   const BookmarksCard({super.key, required this.brand});
 
   @override

@@ -1,19 +1,25 @@
-import 'package:flutter/material.dart';
-
-class BookmarksBrand {
-  final String logoImagePath;
-  final String promotionText;
-  final Color promotionColor;
+class Brand {
+  final int brandId;
   final String brandName;
-  final String category;
-  final String promotionCount;
+  final String imageUrl;
+  final int discountedProductCount;
+  final int category;
 
-  BookmarksBrand({
-    required this.logoImagePath,
-    required this.promotionText,
-    required this.promotionColor,
+  Brand({
+    required this.brandId,
     required this.brandName,
+    required this.imageUrl,
+    required this.discountedProductCount,
     required this.category,
-    required this.promotionCount,
   });
+
+  factory Brand.fromJson(Map<String, dynamic> json) {
+    return Brand(
+      brandId: json['brandId'] ?? 0,
+      brandName: json['brandName'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      discountedProductCount: json['discountedProductCount'] ?? 0,
+      category: json['category'] ?? 0,
+    );
+  }
 }
