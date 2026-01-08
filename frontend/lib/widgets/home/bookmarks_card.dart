@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../models/my_bookmarks_brand.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../models/category_brand_data.dart';
+import '../../screens/brand-promotion/brand_detail_screen.dart';
 
 class BookmarksCard extends StatelessWidget {
   final Brand brand;
+  final VoidCallback? onReturn;
 
-  const BookmarksCard({super.key, required this.brand});
+  const BookmarksCard({super.key, required this.brand, this.onReturn});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +16,24 @@ class BookmarksCard extends StatelessWidget {
     const double logoAreaHeight = 120;
     bool isDiscounting = brand.discountedProductCount > 0;
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        final categoryBrandData = CategoryBrandData(
+          brandId: brand.brandId,
+          name: brand.brandName ?? "이름 없음",
+          imageUrl: brand.imageUrl ?? "",
+          discountedProductCount: brand.discountedProductCount,
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BrandDetail(brandData: categoryBrandData),
+          ),
+        ).then((_) {
+          if (onReturn != null) {
+            onReturn!();
+          }
+        });
+      },
       child: SizedBox(
         width: cardWidth,
         child: Column(
@@ -25,23 +45,31 @@ class BookmarksCard extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
-                color: Colors.grey,
+                color: Color(0xFFFF333F),
               ),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    brand.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
+                  brand.imageUrl.toLowerCase().endsWith('.svg')
+                      ? SvgPicture.network(
+                          brand.imageUrl,
+                          fit: BoxFit.cover,
+                          placeholderBuilder: (context) => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : Image.network(
+                          brand.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: Color(0xFFFF333F),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                   if (isDiscounting)
                     Positioned(
                       bottom: 0,
@@ -76,7 +104,7 @@ class BookmarksCard extends StatelessWidget {
             ),
             const SizedBox(height: 2.0),
             Text(
-              '${brand.categoryId} · ${brand.discountedProductCount}',
+              '할인 중인 상품 ${brand.discountedProductCount}개',
               style: const TextStyle(color: Colors.grey, fontSize: 12),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

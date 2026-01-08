@@ -27,7 +27,7 @@ class BrandItem extends StatelessWidget {
             child: Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
+                child: SvgPicture.network(
                   brand.imageUrl,
                   width: 50,
                   height: 50,
