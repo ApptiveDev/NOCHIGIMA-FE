@@ -201,14 +201,14 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen> {
                               const SizedBox(height: 20),
                           itemBuilder: (context, index) {
                             final brand = _brandList[index];
-                            return GestureDetector(
-                              onTap: () {
+                            return BrandItem(brand: brand, onRemove: () => _removeBrand(index),
+                            onTap: (){
+                              try{
                                 final categoryBrandData = CategoryBrandData(
                                   brandId: brand.brandId,
-                                  name: brand.brandName,
-                                  imageUrl: brand.imageUrl,
-                                  discountedProductCount:
-                                      brand.discountedProductCount,
+                                  name: brand.brandName ?? "이름 없음",
+                                  imageUrl: brand.imageUrl ?? "",
+                                  discountedProductCount: brand.discountedProductCount ?? 0,
                                 );
 
                                 Navigator.push(
@@ -221,12 +221,13 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen> {
                                 ).then((_) {
                                   _fetchAllBookmarks();
                                 });
-                              },
-                              child: BrandItem(
-                                brand: _brandList[index],
-                                onRemove: () => _removeBrand(index),
-                              ),
-                            );
+                              }catch (e) {
+                                print("페이지 이동 중 에러 발생: $e"); // 에러가 나면 콘솔에 출력
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("페이지 이동 오류: $e")),
+                                );
+                              }
+                            },);
                           },
                         ),
                   _promotionList.isEmpty

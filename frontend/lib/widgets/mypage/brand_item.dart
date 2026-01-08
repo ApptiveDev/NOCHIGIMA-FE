@@ -5,14 +5,15 @@ import '../../models/my_bookmarks_brand.dart';
 class BrandItem extends StatelessWidget {
   final Brand brand;
   final VoidCallback onRemove;
+  final VoidCallback? onTap;
 
-  const BrandItem({super.key, required this.brand, required this.onRemove});
+  const BrandItem({super.key, required this.brand, required this.onRemove, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
-      onTap: () {}, // 브랜드 페이지로 넘어가기
+      onTap: onTap, // 브랜드 페이지로 넘어가기
       child: Row(
         children: [
           // 1. 로고 이미지
