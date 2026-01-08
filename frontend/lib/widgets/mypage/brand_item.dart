@@ -24,13 +24,24 @@ class BrandItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
-              child: Text(
-                brand.brandName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF323439),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  brand.imageUrl,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 50,
+                      height: 50,
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

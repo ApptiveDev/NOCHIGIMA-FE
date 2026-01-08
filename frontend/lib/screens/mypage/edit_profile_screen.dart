@@ -165,8 +165,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return SvgPicture.asset(
       iconPath,
       width: 36,
-      placeholderBuilder: (context) =>
-          const Icon(Icons.account_circle, color: Colors.grey),
+      placeholderBuilder: (context) => const Icon(Icons.account_circle, color: Colors.grey,),
     );
   }
 
