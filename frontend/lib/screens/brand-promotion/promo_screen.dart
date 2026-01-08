@@ -382,14 +382,14 @@ class _PromoScreenState extends State<PromoScreen> {
                   itemCount: displayPromotions.length,
                   itemBuilder: (context, index) {
                     final data = displayPromotions[index];
-                    final bool isLiked = _likedPromotionIds.contains(data.productId);
+                    final bool isLiked = data.productId != null ? _likedPromotionIds.contains(data.productId) : false;
 
                     return PromotionBlock(
                       imageURL: data.imageURL,
                       title: "${data.name} ${data.discountValue}% 할인",
                       deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
                       isBookmarked : isLiked,
-                      onHeartTap : () => _toggleBookmark(data.productId),
+                      onHeartTap : () => _toggleBookmark(data.productId!),
                       onPressed: () {
                         Navigator.push(
                           context,
