@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/category_brand_data.dart';
+import 'package:frontend/models/product_data.dart';
 import 'package:frontend/models/promotion_data.dart';
 import 'package:frontend/services/promotion_service.dart';
 import 'package:frontend/widgets/brand-promotion/brand_detail_widgets/brand_header_image.dart';
@@ -69,7 +70,20 @@ class _BrandDetailState extends State<BrandDetail> {
               ];
             }, body: TabBarView(
             children: [
-              _buildPromotionTab(),
+              FutureBuilder<List<PromotionData>>(
+                future: _promotionsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text("데이터를 불러오는 중 오류가 발생했습니다."));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text("진행 중인 프로모션이 없습니다."));
+                  }
+
+                  return _buildPromotionTab(snapshot.data!);
+                },
+              ),
               const Center(child: Text("준비 중인 메뉴입니다.")),
             ],
           ),)
@@ -155,41 +169,7 @@ class _BrandDetailState extends State<BrandDetail> {
               ),
             ],
           ),
-          const SizedBox(height: 4), // 행 사이 간격
-
-          // 2. 내 근처 매장 행
-          Row(
-            children: [
-              const SizedBox(
-                width: 100,
-                child: Text(
-                  '내 근처 매장',
-                  style: TextStyle(color: Color(0xFF4B4E52), fontSize: 14),
-                ),
-              ),
-              const Expanded(
-                child: Text(
-                  '6개',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-              ),
-              // 지도 보기 버튼
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE9ECEF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  '지도 보기',
-                  style: TextStyle(color: Color(0xFF4B4E52),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
+          const SizedBox(height: 4),
         ],
       ),
     );
@@ -220,46 +200,45 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-Widget _buildPromotionTab() {
+Widget _buildPromotionTab(List<PromotionData> promotions) {
   return ListView.builder(
-    // 탭 뷰 안에서 리스트뷰를 쓸 때 스크롤 겹침을 방지하기 위해 사용합니다.
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-    itemCount: 5, // 예시로 5개 생성
+    itemCount: promotions.length,
     itemBuilder: (context, index) {
+      final promotion = promotions[index];
       if (index == 0) {
-        // 첫 번째 아이템 위에 "진행 중 프로모션" 텍스트 추가
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: const [
+              children: [
                 Text(
                   "진행 중 프로모션 ",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "18",
+                  "${promotions.length}",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _buildPromotionCard(),
+            _buildPromotionCard(promotion),
           ],
         );
       }
-      return _buildPromotionCard();
+      return _buildPromotionCard(promotion);
     },
   );
 }
 
-Widget _buildPromotionCard() {
+Widget _buildPromotionCard(PromotionData promotion) {
   return Container(
     margin: const EdgeInsets.only(bottom: 24),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. 프로모션 이미지 영역 (하트 버튼 포함)
+        // 1. 프로모션 이미지
         Stack(
           children: [
             ClipRRect(
@@ -267,7 +246,7 @@ Widget _buildPromotionCard() {
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Image.network(
-                  'https://your-image-url.com/whopper_promo.jpg', // 프로모션 이미지
+                  promotion.imageURL,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey[200],
@@ -293,13 +272,13 @@ Widget _buildPromotionCard() {
         const SizedBox(height: 12),
 
         // 2. 텍스트 정보
-        const Text(
-          "버거킹 와퍼 52% 할인",
+        Text(
+          "${promotion.name} ${promotion.discountValue}% 할인 중",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
-        const Text(
-          "행사 기간 | 2025.08.01 ~ 2025.09.25",
+        Text(
+          "행사 기간 | ${promotion.discountStartAt} ~ ${promotion.discountEndAt}",
           style: TextStyle(fontSize: 13, color: Color(0xFF9AA0A6)),
         ),
         const SizedBox(height: 10),

@@ -305,8 +305,24 @@ class _PromoScreenState extends State<PromoScreen> {
                       deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
                       isBookmarked: false,
                       onHeartTap: () {
-                        print("하트 클릭됨: ${data.name}");
-                        // 나중에 여기에 찜하기 API 연결하면 됩니다.
+                        setState(() {
+                          data.isBookmarked = !data.isBookmarked;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${data.name} 찜 완료!'),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            action: SnackBarAction(
+                              label: '취소',
+                              onPressed: () {
+                                // 취소 버튼 눌렀을 때 로직 (나중에 구현)
+                                print("찜 취소됨");
+                              },
+                            ),
+                          ),
+                        );
                       },
                       onPressed: () {
                         Navigator.push(

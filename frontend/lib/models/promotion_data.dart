@@ -10,6 +10,9 @@ class PromotionData{
   final String discountEndAt;
   final int discountedPrice;
 
+  bool isBookmarked;
+
+
   PromotionData({
     required this.productId,
     required this.brandId,
@@ -21,6 +24,7 @@ class PromotionData{
     required this.discountStartAt,
     required this.discountEndAt,
     required this.discountedPrice,
+    this.isBookmarked = false,
   });
 
   factory PromotionData.fromJson(Map<String, dynamic> json){
@@ -34,7 +38,8 @@ class PromotionData{
         discountValue: json['discountValue'] ?? 0,
         discountStartAt: json['discountStartAt'] ?? "",
         discountEndAt: json['discountEndAt'] ?? "",
-        discountedPrice: json['discountedPrice'] ?? 0
+        discountedPrice: json['discountedPrice'] ?? 0,
+        isBookmarked: false,
     );
   }
 }
