@@ -4,9 +4,9 @@ import 'package:frontend/core/app_colors.dart';
 import 'package:frontend/models/menu_category.dart';
 import 'package:frontend/screens/brand-promotion/search_promo_screen.dart';
 import 'package:frontend/screens/home/home_screen.dart';
+import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 import 'package:frontend/screens/mypage/mypage_screen.dart';
 import 'package:frontend/screens/brand-promotion/promo_screen.dart';
-import 'package:frontend/screens/social/social_screen.dart';
 import 'package:frontend/widgets/nav_widget.dart';
 
 class MainScreen extends StatefulWidget{
@@ -43,9 +43,9 @@ class _MainScreenState extends State<MainScreen>{
       case 2:
         return PromoScreen(key: ValueKey(_targetCatetory),initialCategory: _targetCatetory,);
       case 3:
-        return const SocialScreen();
+        return const MyBookmarksScreen();
       case 4:
-        return const MypageNavigator();
+        return const MypageScreen();
       default:
         return HomeScreen(onCategoryTap: _onCategorySelected);
     }
