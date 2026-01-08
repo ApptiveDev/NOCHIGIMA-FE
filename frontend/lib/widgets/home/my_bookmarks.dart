@@ -1,56 +1,64 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/app_colors.dart';
 import 'package:frontend/models/my_bookmarks_brand.dart';
 import 'package:frontend/widgets/home/bookmarks_card.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-final List<BookmarksBrand> bookmarkBrands = [
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFFF5EBDC),
-    brandName: '버거킹',
-    category: '햄버거',
-    promotionCount: '15개 이상 진행',
-  ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '신메뉴 출시',
-    promotionColor: Color(0xFFE30613), // 맥도날드 붉은색
-    brandName: '맥도날드',
-    category: '햄버거',
-    promotionCount: '프로모션 없음',
-  ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFF008250),
-    brandName: '신전떡볶이',
-    category: '떡볶이',
-    promotionCount: '7개 진행',
-  ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFF008250),
-    brandName: '신전떡볶이',
-    category: '떡볶이',
-    promotionCount: '7개 진행',
-  ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFF008250),
-    brandName: '신전떡볶이',
-    category: '떡볶이',
-    promotionCount: '7개 진행',
-  ),
-  // ... 추가 브랜드
-];
-
-class MyBookmarks extends StatelessWidget {
+class MyBookmarks extends StatefulWidget {
   const MyBookmarks({super.key});
 
+  @override
+  State<MyBookmarks> createState() => _MyBookmarksState();
+}
+
+class _MyBookmarksState extends State<MyBookmarks> {
+  List<Brand> bookmarkBrands = [];
+  bool _isLoading = true;
+
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecentBookmarks();
+  }
+
+  Future<void> _fetchRecentBookmarks() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      final uri = Uri.https(baseUrl, '/v1/favorites/brands');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
+
+        setState(() {
+          bookmarkBrands = jsonList
+              .map((json) => Brand.fromJson(json))
+              .toList();
+          _isLoading = false;
+        });
+      } else {
+        print("홈 즐겨찾기 로드 실패: ${response.statusCode}");
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print("홈 즐겨찾기 네트워크 에러: $e");
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,13 +79,15 @@ class MyBookmarks extends StatelessWidget {
               ),
 
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const MyBookmarksScreen(),
-                  ),
-                  );
+                    ),
+                  ).then((_) {
+                    _fetchRecentBookmarks();
+                  });
                 },
                 child: Row(
                   children: [
@@ -92,26 +102,58 @@ class MyBookmarks extends StatelessWidget {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
         SizedBox(
           height: 200,
-          child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              primary: false,
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              itemBuilder: (context, index){
-                return BookmarksCard(brand: bookmarkBrands[index]);
-              },
-              separatorBuilder: (_,_) => const SizedBox(width: 18.0),
-              itemCount: bookmarkBrands.length,
-          ),
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFFFF333F)),
+                )
+              : bookmarkBrands.isEmpty
+              ? _buildEmptyState()
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  primary: false,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  itemBuilder: (context, index) {
+                    return BookmarksCard(brand: bookmarkBrands[index]);
+                  },
+                  separatorBuilder: (_, _) => const SizedBox(width: 18.0),
+                  itemCount: bookmarkBrands.length,
+                ),
         ),
         const SizedBox(height: 12),
       ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.bookmark_border, color: Colors.grey, size: 30),
+          SizedBox(height: 8),
+          Text(
+            "즐겨찾기한 브랜드가 없어요",
+            style: TextStyle(
+              fontFamily: "Pretendard",
+              color: Colors.grey,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
