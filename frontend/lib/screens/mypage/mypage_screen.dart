@@ -47,7 +47,7 @@ class _MypageScreenState extends State<MypageScreen> {
       final brandUri = Uri.https(baseUrl, '/v1/favorites/brand');
 
       final responses = await Future.wait([
-        http.get(profileUri, headers: {'Authorization': 'Bearer $accessToken'}),
+        http.get(profileUri, headers: {'Authorization':'Bearer $accessToken'}),
         http.get(brandUri, headers: {'Authorization': 'Bearer $accessToken'}),
         http.get(promoUri, headers: {'Authorization': 'Bearer $accessToken'}),
       ]);
@@ -271,8 +271,7 @@ class _MypageScreenState extends State<MypageScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    MyBookmarksScreen(initialIndex: 1),
+                                builder: (context) => MyBookmarksScreen(initialIndex: 1,),
                               ),
                             ).then((_) {
                               _fetchMyProfile();
