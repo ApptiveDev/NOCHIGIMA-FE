@@ -46,8 +46,10 @@ class _PromoScreenState extends State<PromoScreen> {
       String? accessToken = await _storage.read(key: 'accessToken');
       if (accessToken == null) return;
 
+      final uri = Uri.https(_baseUrl, '/v1/favorites/discounts');
+
       final response = await http.get(
-        Uri.parse('http://$_baseUrl/v1/favorites/discounts'), // 혹은 /bookmarks/promotions
+        uri,
         headers: {
           'accept': '*/*',
           'Authorization': 'Bearer $accessToken',
@@ -55,6 +57,7 @@ class _PromoScreenState extends State<PromoScreen> {
       );
 
       if (response.statusCode == 200) {
+        print("즐겨찾기 목록 : ${utf8.decode(response.bodyBytes)}");
         List<dynamic> list = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           _likedPromotionIds.clear();
