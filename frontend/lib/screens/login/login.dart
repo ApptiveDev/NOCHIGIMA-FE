@@ -38,13 +38,13 @@ class Login extends StatelessWidget {
   }
   
   void _handleLogin(BuildContext context, String provider) async {
-    String? socialId;
     print("🔥 [내 진짜 키 해시]: ${await KakaoSdk.origin}");
     try {
+      bool isInstalled = await isKakaoTalkInstalled();
       if (provider == 'kakao') {
         print("카카오 로그인 실행");
         OAuthToken token;
-        if (await isKakaoTalkInstalled()){
+        if (isInstalled){
           try{
             token = await UserApi.instance.loginWithKakaoTalk();
             print("kakao login 성공");
