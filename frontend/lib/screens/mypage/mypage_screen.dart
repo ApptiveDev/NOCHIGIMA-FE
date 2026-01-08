@@ -38,7 +38,8 @@ class _MypageScreenState extends State<MypageScreen> {
           _isLoading = false;
         });
       }
-
+      // profile uri 확인 필요
+      final profileUri = Uri.https(baseUrl, '/v1/users/profile');
       final brandUri = Uri.https(baseUrl, '/v1/favorites/discounts');
       final promoUri = Uri.https(baseUrl, '/v1/favorites/discounts');
 
@@ -47,27 +48,35 @@ class _MypageScreenState extends State<MypageScreen> {
         http.get(promoUri, headers: {'Authorization': 'Bearer $accessToken'}),
       ]);
 
-      final brandResponse = responses[0];
-      final promoResponse = responses[1];
+      final profileResponse = responses[0];
+      final brandResponse = responses[1];
+      final promoResponse = responses[2];
 
-      if (brandResponse.statusCode == 200 && promoResponse.statusCode == 200) {
-        final List<dynamic> brandList = jsonDecode(
-          utf8.decode(brandResponse.bodyBytes),
-        );
-        final List<dynamic> promoList = jsonDecode(
-          utf8.decode(promoResponse.bodyBytes),
-        );
-        if (mounted) {
-          setState(() {
-            _nickname = "모아부기"; // 실제 닉네임 API가 있다면 여기에 연결
-            _brandCount = brandList.length; // 리스트 개수 카운트
-            _promotionCount = promoList.length; // 리스트 개수 카운트
-            _isLoading = false;
-          });
-        }
-      } else {
-        print("데이터 로드 실패: ${brandResponse.statusCode}");
+      if (mounted) {
         setState(() {
+          if (profileResponse.statusCode == 200) {
+            final profileData = jsonDecode(
+              utf8.decode(profileResponse.bodyBytes),
+            );
+            _nickname = profileData['nickname'] ?? "알 수 없음";
+          } else {
+            print("프로필 로드 실패: ${profileResponse.statusCode}");
+          }
+
+          if (brandResponse.statusCode == 200) {
+            final List<dynamic> brandList = jsonDecode(
+              utf8.decode(brandResponse.bodyBytes),
+            );
+            _brandCount = brandList.length;
+          }
+
+          if (promoResponse.statusCode == 200) {
+            final List<dynamic> promoList = jsonDecode(
+              utf8.decode(promoResponse.bodyBytes),
+            );
+            _promotionCount = promoList.length;
+          }
+
           _isLoading = false;
         });
       }
@@ -229,7 +238,9 @@ class _MypageScreenState extends State<MypageScreen> {
                               MaterialPageRoute(
                                 builder: (context) => MyBookmarksScreen(),
                               ),
-                            ).then((_){_fetchMyProfile();});
+                            ).then((_) {
+                              _fetchMyProfile();
+                            });
                           }),
                         ),
                         buildDivider(),
@@ -240,7 +251,9 @@ class _MypageScreenState extends State<MypageScreen> {
                               MaterialPageRoute(
                                 builder: (context) => MyBookmarksScreen(),
                               ),
-                            ).then((_){_fetchMyProfile();});
+                            ).then((_) {
+                              _fetchMyProfile();
+                            });
                           }),
                         ),
                       ],
