@@ -44,7 +44,7 @@ class _MypageScreenState extends State<MypageScreen> {
 
       final profileUri = Uri.https(baseUrl, '/v1/users/me');
       final promoUri = Uri.https(baseUrl, '/v1/favorites/discounts');
-      final brandUri = Uri.https(baseUrl, '/v1/favorites/brand');
+      final brandUri = Uri.https(baseUrl, '/v1/favorites/brands');
 
       final responses = await Future.wait([
         http.get(profileUri, headers: {'Authorization': 'Bearer $accessToken'}),

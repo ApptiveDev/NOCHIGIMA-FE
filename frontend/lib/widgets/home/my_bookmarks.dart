@@ -117,7 +117,7 @@ class _MyBookmarksState extends State<MyBookmarks> {
               : ListView.separated(
                   scrollDirection: Axis.horizontal,
                   primary: false,
-                  shrinkWrap: true,
+                  shrinkWrap: false,
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   itemBuilder: (context, index) {
                     return BookmarksCard(brand: bookmarkBrands[index]);
