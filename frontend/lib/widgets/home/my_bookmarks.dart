@@ -7,8 +7,6 @@ import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
-
 class MyBookmarks extends StatefulWidget {
   const MyBookmarks({super.key});
 
@@ -42,10 +40,14 @@ class _MyBookmarksState extends State<MyBookmarks> {
         },
       );
       if (response.statusCode == 200) {
-        final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+        final List<dynamic> jsonList = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
 
         setState(() {
-          bookmarkBrands = jsonList.map((json) => Brand.fromJson(json)).toList();
+          bookmarkBrands = jsonList
+              .map((json) => Brand.fromJson(json))
+              .toList();
           _isLoading = false;
         });
       } else {
@@ -77,13 +79,13 @@ class _MyBookmarksState extends State<MyBookmarks> {
               ),
 
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const MyBookmarksScreen(),
-                  ),
-                  ).then((_){
+                    ),
+                  ).then((_) {
                     _fetchRecentBookmarks();
                   });
                 },
@@ -100,26 +102,58 @@ class _MyBookmarksState extends State<MyBookmarks> {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
         SizedBox(
           height: 200,
-          child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              primary: false,
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              itemBuilder: (context, index){
-                return BookmarksCard(brand: bookmarkBrands[index]);
-              },
-              separatorBuilder: (_,_) => const SizedBox(width: 18.0),
-              itemCount: bookmarkBrands.length,
-          ),
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFFFF333F)),
+                )
+              : bookmarkBrands.isEmpty
+              ? _buildEmptyState()
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  primary: false,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  itemBuilder: (context, index) {
+                    return BookmarksCard(brand: bookmarkBrands[index]);
+                  },
+                  separatorBuilder: (_, _) => const SizedBox(width: 18.0),
+                  itemCount: bookmarkBrands.length,
+                ),
         ),
         const SizedBox(height: 12),
       ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.bookmark_border, color: Colors.grey, size: 30),
+          SizedBox(height: 8),
+          Text(
+            "즐겨찾기한 브랜드가 없어요",
+            style: TextStyle(
+              fontFamily: "Pretendard",
+              color: Colors.grey,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
