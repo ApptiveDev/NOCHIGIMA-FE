@@ -4,47 +4,29 @@ import 'package:frontend/models/my_bookmarks_brand.dart';
 import 'package:frontend/widgets/home/bookmarks_card.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 
-final List<BookmarksBrand> bookmarkBrands = [
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFFF5EBDC),
+final List<Brand> bookmarkBrands = [
+  Brand(
+    brandId: 0,
+    imageUrl: 'assets/images/logo_burgerking.svg',
     brandName: '버거킹',
-    category: '햄버거',
-    promotionCount: '15개 이상 진행',
+    category:0,
+    discountedProductCount: 15,
   ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '신메뉴 출시',
-    promotionColor: Color(0xFFE30613), // 맥도날드 붉은색
+  Brand(
+    brandId: 1,
+    imageUrl: 'assets/images/logo_burgerking.svg',
     brandName: '맥도날드',
-    category: '햄버거',
-    promotionCount: '프로모션 없음',
+    category: 0,
+    discountedProductCount: 0,
   ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFF008250),
+  Brand(
+    brandId: 3,
+    imageUrl: 'assets/images/logo_burgerking.svg',
     brandName: '신전떡볶이',
-    category: '떡볶이',
-    promotionCount: '7개 진행',
+    category: 1,
+    discountedProductCount: 7,
   ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFF008250),
-    brandName: '신전떡볶이',
-    category: '떡볶이',
-    promotionCount: '7개 진행',
-  ),
-  BookmarksBrand(
-    logoImagePath: 'assets/images/logo_burgerking.svg',
-    promotionText: '할인 프로모션 진행중',
-    promotionColor: Color(0xFF008250),
-    brandName: '신전떡볶이',
-    category: '떡볶이',
-    promotionCount: '7개 진행',
-  ),
+
   // ... 추가 브랜드
 ];
 
