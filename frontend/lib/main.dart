@@ -6,6 +6,10 @@ void main() {
   // WidgetsFlutterBinding.ensureInitialized();
   // KakaoSdk.init(nativeAppKey: '8667568839d73106932028edac842fef');
   // print("🔥 현재 내 앱의 키 해시: ${KakaoSdk.origin}");
+  KakaoSdk.init(
+    nativeAppKey: '8667568839d73106932028edac842fef',
+  );
+
   runApp(const MyApp());
 }
 
@@ -21,7 +25,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MainScreen(),
+      home: Login(),
     );
   }
 }

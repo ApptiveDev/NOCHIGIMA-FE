@@ -6,6 +6,7 @@ import 'package:frontend/widgets/mypage/mypage_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../login/login.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -65,6 +66,93 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _getSocialIcon(String type){
+  Future<void> _deleteAccount() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+      if (accessToken == null) return;
+      final uri = Uri.https(baseUrl, '/v1/users/me');
+      final response = await http.delete(
+        uri,
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        await storage.deleteAll();
+        if (!mounted) return;
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const Login()),
+          (route) => false,
+        );
+      } else {
+        print("탈퇴 실패 : ${response.statusCode}");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("탈퇴 처리에 실패했습니다. 다시 시도해주세요.")),
+          );
+        }
+      }
+    } catch (e) {
+      print("탈퇴 에러 : $e");
+    }
+  }
+
+  void _showWithdrawalDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(20, 28, 20, 22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "정말 탈퇴하시겠습니까?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "Pretendard",
+                    color: Color(0xFF323439),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    buildDialogButton(
+                      text: "취소",
+                      textColor: Color(0xFF686D78),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      borderColor: Color(0xFFE2E4EC),
+                    ),
+                    SizedBox(width: 10),
+                    buildDialogButton(
+                      text: "탈퇴하기",
+                      textColor: Colors.white,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _deleteAccount();
+                      },
+                      backgroundColor: Color(0xFFFF333F),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _getSocialIcon(String type) {
     String iconPath;
     switch (type.toUpperCase()) {
       case 'GOOGLE':
@@ -242,13 +330,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Spacer(),
                       Center(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: _showWithdrawalDialog,
                           child: Text(
                             "탈퇴하기",
                             style: TextStyle(
                               color: Color(0xFFFF333F),
                               fontWeight: FontWeight.w500,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontFamily: "Pretendard",
                               decoration: TextDecoration.underline,
                               decorationColor: Color(0xFFFF333F),

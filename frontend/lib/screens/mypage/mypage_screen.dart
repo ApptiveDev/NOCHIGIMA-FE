@@ -7,9 +7,11 @@ import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../login/login.dart';
 
 class MypageScreen extends StatefulWidget {
   final int initialIndex;
+
   const MypageScreen({super.key, this.initialIndex = 0});
 
   @override
@@ -127,7 +129,24 @@ class _MypageScreenState extends State<MypageScreen> {
                     buildDialogButton(
                       text: "로그아웃",
                       textColor: Colors.white,
-                      onTap: () {},
+                      onTap: () async {
+                        try {
+                          await storage.delete(key: 'accessToken');
+                          if (!mounted) return;
+                          Navigator.pop(context);
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const Login(),
+                            ),
+                            (route) => false,
+                          );
+                        } catch (e) {
+                          print("로그아웃 에러 : $e");
+                        }
+                      },
                       backgroundColor: Color(0xFFFF333F),
                     ),
                   ],
@@ -238,7 +257,8 @@ class _MypageScreenState extends State<MypageScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyBookmarksScreen(initialIndex: 0,),
+                                builder: (context) =>
+                                    MyBookmarksScreen(initialIndex: 0),
                               ),
                             ).then((_) {
                               _fetchMyProfile();
