@@ -76,7 +76,7 @@ class BookmarksCard extends StatelessWidget {
             ),
             const SizedBox(height: 2.0),
             Text(
-              '${brand.category} · ${brand.discountedProductCount}',
+              '${brand.categoryId} · ${brand.discountedProductCount}',
               style: const TextStyle(color: Colors.grey, fontSize: 12),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

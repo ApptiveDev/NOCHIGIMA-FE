@@ -3,14 +3,14 @@ class Brand {
   final String brandName;
   final String imageUrl;
   final int discountedProductCount;
-  final int category;
+  final int categoryId;
 
   Brand({
     required this.brandId,
     required this.brandName,
     required this.imageUrl,
     required this.discountedProductCount,
-    required this.category,
+    required this.categoryId,
   });
 
   factory Brand.fromJson(Map<String, dynamic> json) {
@@ -19,7 +19,7 @@ class Brand {
       brandName: json['brandName'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
       discountedProductCount: json['discountedProductCount'] ?? 0,
-      category: json['category'] ?? 0,
+      categoryId: json['category'] ?? 0,
     );
   }
 }

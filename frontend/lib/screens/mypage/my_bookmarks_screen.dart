@@ -21,21 +21,21 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen> {
           "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Burger_King_logo_%281999%29.svg/2024px-Burger_King_logo_%281999%29.svg.png",
       // 실제 테스트용 이미지 URL
       discountedProductCount: 12,
-      category: 0
+      categoryId: 0
     ),
     Brand(
       brandId: 2,
       brandName: "맥도날드",
       imageUrl: "", // 이미지가 없는 경우 테스트
       discountedProductCount: 5,
-      category: 0
+      categoryId: 0
     ),
     Brand(
       brandId: 3,
       brandName: "신전떡볶이",
       imageUrl: "broken_url", // 이미지가 깨진 경우 테스트
       discountedProductCount: 8,
-      category: 1
+      categoryId: 1
     ),
   ];
 

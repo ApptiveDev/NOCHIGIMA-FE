@@ -135,6 +135,7 @@ class _MypageScreenState extends State<MypageScreen> {
                           ),
                           backgroundColor: Color(0xFFF9FAFB),
                           elevation: 0,
+                          shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
