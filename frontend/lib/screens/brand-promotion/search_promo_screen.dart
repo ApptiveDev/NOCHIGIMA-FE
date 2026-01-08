@@ -171,22 +171,15 @@ class _SearchPromotionState extends State<SearchPromotion> {
                 final String name = brand['name'] ?? '이름 없음';
                 final String imageUrl = brand['imageUrl'] ?? '';
                 final int brandId = brand['brandId'] ?? 0;
-                final int discountedProductCount =
-                    brand['discountedProductCount'] ?? 0;
+                final int discountedProductCount = brand['discountedProductCount'] ?? 0;
 
                 return InkWell(
                   onTap: () {
-                    final brandObject = CategoryBrandData(
-                      brandId: brandId,
-                      name: name,
-                      imageUrl: imageUrl,
-                      discountedProductCount: discountedProductCount,
-                    );
+                    final brandObject = CategoryBrandData(brandId: brandId, name: name, imageUrl: imageUrl, discountedProductCount: discountedProductCount);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            BrandDetail(brandData: brandObject),
+                        builder: (context) => BrandDetail(brandData: brandObject),
                       ),
                     );
                   },
