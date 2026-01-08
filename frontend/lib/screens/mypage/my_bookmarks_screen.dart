@@ -1,6 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+class Brand {
+  final int brandId;
+  final String brandName;
+  final String imageUrl;
+  final int discountedProductCount; // 할인 상품 개수
+
+  Brand({
+    required this.brandId,
+    required this.brandName,
+    required this.imageUrl,
+    required this.discountedProductCount,
+  });
+
+  // 나중에 백엔드 JSON을 받으면 이 함수가 자동으로 객체로 변환해줍니다.
+  factory Brand.fromJson(Map<String, dynamic> json) {
+    return Brand(
+      brandId: json['brandId'] ?? 0,
+      brandName: json['brandName'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      discountedProductCount: json['discountedProductCount'] ?? 0,
+    );
+  }
+}
+
 class MyBookmarksScreen extends StatefulWidget{
   const MyBookmarksScreen({super.key});
 
@@ -10,31 +34,25 @@ class MyBookmarksScreen extends StatefulWidget{
 
 
 class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
-  final List<Map<String, dynamic>> _brandList = [
-    {
-      "logoColor": const Color(0xFFF5EBDC),
-      "logoText": "BURGER\nKING",
-      "logoTextColor": Colors.red,
-      "category": "햄버거",
-      "brandName": "버거킹",
-      "storeCount": 6,
-    },
-    {
-      "logoColor": const Color(0xFFDA0015),
-      "logoText": "M",
-      "logoTextColor": Colors.yellow,
-      "category": "햄버거",
-      "brandName": "맥도날드",
-      "storeCount": 4,
-    },
-    {
-      "logoColor": const Color(0xFF009345),
-      "logoText": "신전",
-      "logoTextColor": Colors.white,
-      "category": "떡볶이",
-      "brandName": "신전떡볶이",
-      "storeCount": 2,
-    },
+  final List<Brand> _brandList = [
+    Brand(
+      brandId: 1,
+      brandName: "버거킹",
+      imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Burger_King_logo_%281999%29.svg/2024px-Burger_King_logo_%281999%29.svg.png", // 실제 테스트용 이미지 URL
+      discountedProductCount: 12,
+    ),
+    Brand(
+      brandId: 2,
+      brandName: "맥도날드",
+      imageUrl: "", // 이미지가 없는 경우 테스트
+      discountedProductCount: 5,
+    ),
+    Brand(
+      brandId: 3,
+      brandName: "신전떡볶이",
+      imageUrl: "broken_url", // 이미지가 깨진 경우 테스트
+      discountedProductCount: 8,
+    ),
   ];
 
   void _removeBrand(int index){
@@ -93,13 +111,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
                 return Column(
                   children: [
                     _buildBrandItem(
-                      index: index, // 몇 번째 아이템인지 전달
-                      logoColor: item['logoColor'],
-                      logoText: item['logoText'],
-                      logoTextColor: item['logoTextColor'],
-                      category: item['category'],
-                      brandName: item['brandName'],
-                      storeCount: item['storeCount'],
+                      index, _brandList[index]
                     ),
                     const SizedBox(height: 20), // 간격
                   ],
@@ -114,15 +126,9 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
   }
 
 
-  Widget _buildBrandItem({
-    required int index,
-    required Color logoColor,
-    required String logoText,
-    required Color logoTextColor,
-    required String category,
-    required String brandName,
-    required int storeCount,
-  }) {
+  Widget _buildBrandItem(
+    int index, Brand brand
+  ) {
     return Row(
       children: [
         // 1. 로고 이미지
@@ -130,15 +136,15 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: logoColor,
+            color: Colors.grey[100],
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
             child: Text(
-              logoText,
+              brand.brandName,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: logoTextColor,
+                color: Color(0xFF323439),
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -153,16 +159,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                category,
-                style: const TextStyle(
-                  color: Color(0xFF858C9A),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                brandName,
+                brand.brandName,
                 style: const TextStyle(
                   color: Color(0xFF323439),
                   fontSize: 18,
@@ -173,7 +170,7 @@ class _MyBookmarksScreenState extends State<MyBookmarksScreen>{
               Row(
                 children: [
                   Text(
-                    "근처 ${storeCount}개의 매장",
+                    "할인 중인 ${brand.discountedProductCount}개의 상품",
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontSize: 14,
