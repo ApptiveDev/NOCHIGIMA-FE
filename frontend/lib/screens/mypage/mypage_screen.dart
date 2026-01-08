@@ -1,12 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/screens/mypage/edit_profile_screen.dart';
 import 'package:frontend/screens/mypage/my_bookmarks_screen.dart';
 import 'package:frontend/screens/mypage/terms_of_service_screen.dart';
 import 'package:frontend/widgets/mypage/mypage_widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../login/login.dart';
 
 class MypageScreen extends StatefulWidget {
-  const MypageScreen({super.key});
+  final int initialIndex;
+
+  const MypageScreen({super.key, this.initialIndex = 0});
 
   @override
   State<MypageScreen> createState() => _MypageScreenState();
@@ -14,7 +20,12 @@ class MypageScreen extends StatefulWidget {
 
 class _MypageScreenState extends State<MypageScreen> {
   String _nickname = "";
+  int _brandCount = 0;
+  int _promotionCount = 0;
   bool _isLoading = true;
+
+  final storage = const FlutterSecureStorage();
+  final String baseUrl = "api.nochigima.shop";
 
   @override
   void initState() {
@@ -24,13 +35,52 @@ class _MypageScreenState extends State<MypageScreen> {
 
   Future<void> _fetchMyProfile() async {
     try {
-      // backend 연결 필요
-      await Future.delayed(const Duration(seconds: 1));
-      final nickname = "모아부기";
+      String? accessToken = await storage.read(key: 'accessToken');
+      if (accessToken == null) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+
+      final profileUri = Uri.https(baseUrl, '/v1/users/me');
+      final promoUri = Uri.https(baseUrl, '/v1/favorites/discounts');
+      final brandUri = Uri.https(baseUrl, '/v1/favorites/brand');
+
+      final responses = await Future.wait([
+        http.get(profileUri, headers: {'Authorization': 'Bearer $accessToken'}),
+        http.get(brandUri, headers: {'Authorization': 'Bearer $accessToken'}),
+        http.get(promoUri, headers: {'Authorization': 'Bearer $accessToken'}),
+      ]);
+
+      final profileResponse = responses[0];
+      final brandResponse = responses[1];
+      final promoResponse = responses[2];
 
       if (mounted) {
         setState(() {
-          _nickname = nickname;
+          if (profileResponse.statusCode == 200) {
+            final profileData = jsonDecode(
+              utf8.decode(profileResponse.bodyBytes),
+            );
+            _nickname = profileData['nickname'] ?? "알 수 없음";
+          } else {
+            print("프로필 로드 실패: ${profileResponse.statusCode}");
+          }
+
+          if (brandResponse.statusCode == 200) {
+            final List<dynamic> brandList = jsonDecode(
+              utf8.decode(brandResponse.bodyBytes),
+            );
+            _brandCount = brandList.length;
+          }
+
+          if (promoResponse.statusCode == 200) {
+            final List<dynamic> promoList = jsonDecode(
+              utf8.decode(promoResponse.bodyBytes),
+            );
+            _promotionCount = promoList.length;
+          }
+
           _isLoading = false;
         });
       }
@@ -67,9 +117,38 @@ class _MypageScreenState extends State<MypageScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    buildDialogButton(text: "취소", textColor: Color(0xFF686D78), onTap: (){Navigator.pop(context);}, borderColor: Color(0xFFE2E4EC)),
+                    buildDialogButton(
+                      text: "취소",
+                      textColor: Color(0xFF686D78),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      borderColor: Color(0xFFE2E4EC),
+                    ),
                     SizedBox(width: 10),
-                    buildDialogButton(text: "로그아웃", textColor: Colors.white, onTap: (){}, backgroundColor: Color(0xFFFF333F))
+                    buildDialogButton(
+                      text: "로그아웃",
+                      textColor: Colors.white,
+                      onTap: () async {
+                        try {
+                          await storage.delete(key: 'accessToken');
+                          if (!mounted) return;
+                          Navigator.pop(context);
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const Login(),
+                            ),
+                            (route) => false,
+                          );
+                        } catch (e) {
+                          print("로그아웃 에러 : $e");
+                        }
+                      },
+                      backgroundColor: Color(0xFFFF333F),
+                    ),
                   ],
                 ),
               ],
@@ -126,7 +205,15 @@ class _MypageScreenState extends State<MypageScreen> {
                               ),
                       ),
                       ElevatedButton(
-                        onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileScreen()));},
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditProfileScreen(),
+                            ),
+                          );
+                          _fetchMyProfile();
+                        },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: EdgeInsets.symmetric(
@@ -135,6 +222,7 @@ class _MypageScreenState extends State<MypageScreen> {
                           ),
                           backgroundColor: Color(0xFFF9FAFB),
                           elevation: 0,
+                          shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -165,24 +253,30 @@ class _MypageScreenState extends State<MypageScreen> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: buildItem("4", "나의 브랜드", () {
+                          child: buildItem("$_brandCount", "나의 브랜드", () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyBookmarksScreen(),
+                                builder: (context) =>
+                                    MyBookmarksScreen(initialIndex: 0),
                               ),
-                            );
+                            ).then((_) {
+                              _fetchMyProfile();
+                            });
                           }),
                         ),
                         buildDivider(),
                         Expanded(
-                          child: buildItem("13", "저장한 프로모션", () {
+                          child: buildItem("$_promotionCount", "저장한 프로모션", () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyBookmarksScreen(),
+                                builder: (context) =>
+                                    MyBookmarksScreen(initialIndex: 1),
                               ),
-                            );
+                            ).then((_) {
+                              _fetchMyProfile();
+                            });
                           }),
                         ),
                       ],

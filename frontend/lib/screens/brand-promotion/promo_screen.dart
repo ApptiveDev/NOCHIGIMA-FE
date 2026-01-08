@@ -303,6 +303,11 @@ class _PromoScreenState extends State<PromoScreen> {
                       imageURL: data.imageURL,
                       title: "${data.name} ${data.discountValue}% 할인",
                       deadline: "${data.discountStartAt} ~ ${data.discountEndAt}",
+                      isBookmarked: false,
+                      onHeartTap: () {
+                        print("하트 클릭됨: ${data.name}");
+                        // 나중에 여기에 찜하기 API 연결하면 됩니다.
+                      },
                       onPressed: () {
                         Navigator.push(
                           context,

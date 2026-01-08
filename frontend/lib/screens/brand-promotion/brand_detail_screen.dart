@@ -16,10 +16,12 @@ class _BrandDetailState extends State<BrandDetail> {
   late Future<List<PromotionData>> _promotionsFuture;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _promotionsFuture = PromotionService.fetchPromotionsByBrand(widget.brandData.brandId);
+    _promotionsFuture =
+        PromotionService.fetchPromotionsByBrand(widget.brandData.brandId);
   }
+
   @override
   Widget build(BuildContext context) {
     final brand = widget.brandData;
@@ -27,46 +29,50 @@ class _BrandDetailState extends State<BrandDetail> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: DefaultTabController(
-        length: 2,
-        child: NestedScrollView(headerSliverBuilder: (context, innerBoxIsScrolled){
-          return [
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BrandHeaderImage(brand: brand, promotionsFuture: _promotionsFuture,),
-                  _buildBrandDescription(brand),
-                  _buildInfoCard(),
-                  const SizedBox(height: 26),
-                  const Divider(thickness: 8, color: Color(0xFFF3F4F8)),
-                ],
-              ),
-            ),
-
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SliverAppBarDelegate(
-                const TabBar(
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Color(0xFF9AA0A6),
-                  indicatorColor: Colors.black,
-                  indicatorWeight: 2,
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-                  tabs: [
-                    Tab(text: "프로모션"),
-                    Tab(text: "메뉴"),
-                  ],
+          length: 2,
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BrandHeaderImage(
+                        brand: brand, promotionsFuture: _promotionsFuture,),
+                      _buildBrandDescription(brand),
+                      _buildInfoCard(brand.discountedProductCount),
+                      const SizedBox(height: 26),
+                      const Divider(thickness: 8, color: Color(0xFFF3F4F8)),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ];
-        }, body: TabBarView(
-          children: [
-            _buildPromotionTab(),
-            const Center(child: Text("준비 중인 메뉴입니다.")),
-          ],
-        ),)
+
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverAppBarDelegate(
+                    const TabBar(
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Color(0xFF9AA0A6),
+                      indicatorColor: Colors.black,
+                      indicatorWeight: 2,
+                      labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
+                      unselectedLabelStyle: TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 16),
+                      tabs: [
+                        Tab(text: "프로모션"),
+                        Tab(text: "메뉴"),
+                      ],
+                    ),
+                  ),
+                ),
+              ];
+            }, body: TabBarView(
+            children: [
+              _buildPromotionTab(),
+              const Center(child: Text("준비 중인 메뉴입니다.")),
+            ],
+          ),)
       ),
     );
   }
@@ -86,14 +92,18 @@ class _BrandDetailState extends State<BrandDetail> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(_translateBrandName(brand.name), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.favorite_border)),
+              Text(_translateBrandName(brand.name),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              IconButton(
+                  onPressed: () {}, icon: const Icon(Icons.favorite_border)),
             ],
           ),
           Wrap(
             spacing: 8,
             children: [
-              _buildTag('프로모션 ${brand.discountedProductCount}개', Colors.red[50]!, Colors.red),
+              _buildTag(
+                  '프로모션 ${brand.discountedProductCount}개', Colors.red[50]!,
+                  Colors.red),
               _buildTag('최대 50%', Colors.grey[100]!, Colors.grey),
             ],
           ),
@@ -105,12 +115,16 @@ class _BrandDetailState extends State<BrandDetail> {
   Widget _buildTag(String label, Color bgColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(4)),
+      decoration: BoxDecoration(
+          color: bgColor, borderRadius: BorderRadius.circular(4)),
       child: Text(label, style: TextStyle(color: textColor, fontSize: 12)),
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(int count) {
+    final String statusText = count >= 5 ? '활발' : '노력';
+    final Color statusColor = count >= 5 ? Colors.red : Colors.orange;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
@@ -130,9 +144,9 @@ class _BrandDetailState extends State<BrandDetail> {
                   style: TextStyle(color: Color(0xFF4B4E52), fontSize: 14),
                 ),
               ),
-              const Text(
-                '활발',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              Text(
+                statusText,
+                style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(width: 4),
               const Text(
@@ -161,14 +175,17 @@ class _BrandDetailState extends State<BrandDetail> {
               ),
               // 지도 보기 버튼
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE9ECEF),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   '지도 보기',
-                  style: TextStyle(color: Color(0xFF4B4E52), fontSize: 12, fontWeight: FontWeight.w500),
+                  style: TextStyle(color: Color(0xFF4B4E52),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -177,7 +194,6 @@ class _BrandDetailState extends State<BrandDetail> {
       ),
     );
   }
-
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
