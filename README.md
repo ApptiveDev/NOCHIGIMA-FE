@@ -1,51 +1,63 @@
-# 놓치지마
+# 🤝 놓치지마
 
 > 프랜차이즈 브랜드들의 프로모션을 놓치지 않도록 모아주는 서비스!
 
-## 🤝 개발협업
+## 프로젝트 설명
 
-### 🌲 Branch
+### 배경
+저희 팀의 팀원들은 모두 대학생으로, 돈을 아끼기 위해 음식점이나 편의점에서 할인하는 상품을 적극 소비해왔습니다. 하지만 할인하는 품목을 알기 위해서는 각 브랜드의 공식 사이트 또는 어플리케이션에 하나하나 직접 접속해야만 확인이 가능하다는 불편함을 겪었습니다. 이러한 문제를 해결하기 위해 다양한 외식 거리의 할인 정보 및 프로모션을 한 곳에 모아 한 눈으로 볼 수 있는 서비스를 기획하게 되었습니다. 본 서비스는 사용자에게 시간과 비용을 동시에 절약시킬 수 있는 합리적 소비 경험을 제공하는 것을 목표로 기획되었습니다. 
 
-```plaintext
-main ------- backend/<이름>/(<이슈번호>-)<작업명>    (백엔드 작업)
-     \----- frontend/<이름>/(<이슈번호>-)<작업명>    (프론트 작업)
+### 주요 기능
+**프랜차이즈 브랜드(예시: 햄버거 내 맥도날드, 버거킹 등...)의 할인 정보를 한 눈에 볼 수 있도록 정리해둔 서비스**
 
-ex) backend/wonseok/#10-add-animation
-ex) frontend/wonseok/fix-login-not-allowed   (이슈가 없으면)
-```
+- 프랜차이즈 할인 정보 모아보기
+- 필터링으로 원하는 프로모션 확인하기
+- 할인 정보 즐겨찾기 및 마감 3일 전 알림 기능
+- 즐겨 보는 브랜드 책갈피
 
-브랜치 관리 전략은 `main`과 개인 브랜치만이 존재하는 간단한 Github Flow를 따릅니다.
+### 추가하고 싶은 기능
+- 지역 상권의 프로모션 및 할인 정보 정리
 
-- `main` 브랜치는 항상 작동 가능한 안정된 상태여야 한다.
-  - 직접 커밋하지 않으며, Pull Request만으로 변경한다.
-- 개인 브랜치에서 작업을 진행한다.
-- 브랜치명은 작업 내용과 직군이 구체적으로 드러나도록 한다.
-  - 브랜치명에 `backend`, `frontend`를 구분한다.
-  - 띄어쓰기는 하이픈(`-`)으로 구분한다.
-  - 브랜치명은 전부 소문자를 사용한다.
+---
 
-프로젝트에 CI/CD를 구성하는 등 규모가 커지면 `develop` 브랜치를 추가하거나 `git flow`로 전환할 수 있습니다.
 
-### 🍪 Pull Request
+## 화면 구성
 
-```plaintext
-main    ---●---●---●---------● abc (Squash Merge)
-                \           /
-개인브랜치          a---b---c   ('abc' 합쳐진 하나의 커밋으로 병합)
+- 스플래시 화면<br>
+  <img width="200" alt="W ver" src="https://github.com/user-attachments/assets/cadc1d9e-2146-4341-a2db-9e9a615aeb26" />
+- 로그인/회원가입<br>
+  <img width="200" alt="로그인" src="https://github.com/user-attachments/assets/88456fde-0cf9-4c8b-afde-01515e0f69e4" />
+  <img width="200" alt="닉네임" src="https://github.com/user-attachments/assets/c2db29b3-3aa5-414a-af84-be2aae1a4ee4" />
+  <img width="200" alt="로그인 완료" src="https://github.com/user-attachments/assets/bda0dac2-690a-47f2-af54-7e72a58a0a59" />
+- 홈 화면<br>
+  <img width="200" alt="Main" src="https://github.com/user-attachments/assets/ead6257d-a6e4-4ada-86f0-ab39258c688e" />
+- 할인정보 열람 및 필터링 기능<br>
+  <img width="200" alt="menu_ver2" src="https://github.com/user-attachments/assets/50f29c7f-b279-4263-b414-bd87e0c93cc9" />
+  <img width="200" alt="필터 ver 1" src="https://github.com/user-attachments/assets/40bd740e-19c5-450b-8bfc-2f88acc897a0" />
+- 즐겨찾기한 브랜드 열람<br>
+  <img width="200" alt="브랜드 상세_프로모션" src="https://github.com/user-attachments/assets/f57722f5-fab1-4905-9825-e9efd9b6424f" />
+  <img width="200" alt="브랜드 상세_프로모션 (1)" src="https://github.com/user-attachments/assets/e6b99f9a-f271-4e57-ae02-4116d83b3ee5" />
+- 마이페이지<br>
+  <img width="200" alt="마이페이지" src="https://github.com/user-attachments/assets/ac376c65-4296-43ae-8396-0aa4695e690c" />
+  <img width="200" alt="마이페이지_프로필 편집" src="https://github.com/user-attachments/assets/c4a9f911-738c-457d-8c27-1a7c5730b02e" />
 
-PR 제목: [Backend/Frontend] <이슈번호> <작업명>
-ex) [Backend] #10 프로필 화면에서 로그인 불가하던 문제 해결
-ex) [Backend] 프로필 화면에서 로그인 불가하던 문제 해결     (이슈가 없으면)
-```
 
-`main` 브랜치의 커밋은 Pull Request 단위로 쌓으며 이를 위해 **Squash Merge**를 원칙으로 합니다. **Squash Merge**는 브랜치가 병합될 때 커밋들이 PR 제목으로 합쳐지게 됩니다. 커밋은 개인마다 기준이 조금씩 다른 반면, PR/브랜치는 이슈 단위로 생성하므로 일관된 기준으로 커밋을 쌓을 수 있어 히스토리 추적을 용이하게 합니다.
+---
 
-- 커밋 제목은 **PR 제목**으로 한다.
-  - Backend/Frontend를 구분한다.
-  - 작업 내용을 구체적으로 드러나게 적는다.
-- 커밋 내용은 **PR 내용**으로 한다.
-  - 브랜치에서의 변경점을 상세히 적는다.
-- Pull Request는 작은 작업 단위(200줄 이내 권장)로 한다.
+
+## 사용 기술
+
+- Frontend
+  - Flutter
+  - Dart
+  - Android Studio
+- Backend
+  - Spring Boot
+  - Swagger
+
+
+---
+
 
 ## 🧑‍💻 팀원
 
